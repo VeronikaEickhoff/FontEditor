@@ -44,6 +44,8 @@ namespace FontEditor
 
             // if point was clicked or just has been created, we pull this point
         }
+
+        
     }
 
     
