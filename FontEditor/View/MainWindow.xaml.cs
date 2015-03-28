@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Forms;
 using System.Collections;
+<<<<<<< HEAD
 using System.Windows.Media.Animation;
 using FontEditor.Model;
 
@@ -26,6 +27,16 @@ namespace FontEditor
 
 
 
+=======
+//using System.Timers;
+using FontEditor.Model;
+
+namespace FontEditor.View
+{
+    /// this is common part, PLEASE don't waste it unless it is extremeley needed (common logic, etc)
+    /// 
+    
+>>>>>>> a481a062971200d9a3aa6a19d1d801d9c6a88904
     public partial class MainWindow : Window
     {
         enum Tabs
@@ -33,6 +44,7 @@ namespace FontEditor
             FONT_EDIT,
             TEXT_EDIT
         };
+<<<<<<< HEAD
         
         private Tabs m_currentTab = Tabs.FONT_EDIT;
 
@@ -46,10 +58,21 @@ namespace FontEditor
 
             //CreateBezierSegment();
 
+=======
+
+        private Tabs m_currentTab = Tabs.FONT_EDIT;
+        
+        public MainWindow()
+        {
+            InitializeComponent();
+            initFontTab();
+            initTextTab();
+>>>>>>> a481a062971200d9a3aa6a19d1d801d9c6a88904
         }
 
         private void CreateBezierSegment()
         {
+<<<<<<< HEAD
             var bezierSegment = new BezierSegment(new Point(100, 200), new Point(400, 200), new Point(400, 300), true);
             var pathSegmentCollection = new PathSegmentCollection {bezierSegment};
 
@@ -63,6 +86,8 @@ namespace FontEditor
             fontCanvas.Children.Add(path);
         }
 
+=======
+>>>>>>> a481a062971200d9a3aa6a19d1d801d9c6a88904
 
         private void fontCanvas_MouseLeftButtonDown(object sender, System.Windows.Input.MouseEventArgs e)
         {
@@ -95,7 +120,11 @@ namespace FontEditor
 
         private void fontCanvas_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
+<<<<<<< HEAD
            // System.Windows.MessageBox.Show("You are moving mouse", "My Application");
+=======
+            //System.Windows.MessageBox.Show("You are moving mouse", "My Application");
+>>>>>>> a481a062971200d9a3aa6a19d1d801d9c6a88904
 
             // if point was clicked or just has been created, we pull this point
         }
@@ -103,12 +132,22 @@ namespace FontEditor
         private void tabControl1_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Contains(fontTab))
+            {
                 m_currentTab = Tabs.FONT_EDIT;
+                onFontTabSelected();
+                onEditTabUnselected();
+            }
             else
+            {
                 m_currentTab = Tabs.TEXT_EDIT;
+                onEditTabSelected();
+                onFontTabUnselected();
+            }
 
         }
+    }
 
+<<<<<<< HEAD
         private void tabControl1_Selected(Object sender, TabControlEventArgs e)
         {
             System.Windows.MessageBox.Show("You are moving mouse", "My Application");
@@ -118,5 +157,7 @@ namespace FontEditor
         
     }
 
+=======
+>>>>>>> a481a062971200d9a3aa6a19d1d801d9c6a88904
     
 }

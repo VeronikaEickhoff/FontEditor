@@ -62,7 +62,13 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+<<<<<<< HEAD
     <Compile Include="Model\Curves.cs" />
+=======
+    <Compile Include="Model\Curve.cs" />
+    <Compile Include="View\FontTab.cs" />
+    <Compile Include="View\TextTab.cs" />
+>>>>>>> a481a062971200d9a3aa6a19d1d801d9c6a88904
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

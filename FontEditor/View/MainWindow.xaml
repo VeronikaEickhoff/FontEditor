@@ -1,9 +1,19 @@
+<<<<<<< HEAD
 ﻿<Window x:Class="FontEditor.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="581.599" Width="794.331"
         TabIndex="2"
         Background="Bisque">
+=======
+﻿<Window x:Class="FontEditor.View.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="350" Width="525"
+        TabIndex="2"
+        Background="Bisque">
+
+>>>>>>> a481a062971200d9a3aa6a19d1d801d9c6a88904
 
 
     <TabControl x:Name="tabControl1" HorizontalAlignment="Left" Height="552" Margin="0,0,-8,0" VerticalAlignment="Top" Width="794"  Background="LightPink" SelectionChanged="tabControl1_SelectionChanged">
@@ -100,8 +110,13 @@
             </TabItem.Style>
 
             <ScrollViewer Height="200" Width="500" Margin="0, 50, 0, 30" HorizontalAlignment="Left" VerticalAlignment="Top">
+<<<<<<< HEAD
                 <Canvas Margin="0,0,0,0"  Width="480" Height="400" Background="AntiqueWhite" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 
+=======
+                <Canvas Name="editCanvas" Margin="0,0,0,0"  Width="480" Height="400" Background="AntiqueWhite" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+       
+>>>>>>> a481a062971200d9a3aa6a19d1d801d9c6a88904
             </ScrollViewer>
 
         </TabItem>
