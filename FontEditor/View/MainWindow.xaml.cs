@@ -14,16 +14,14 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Forms;
 using System.Collections;
+//using System.Timers;
+using FontEditor.Model;
 
-namespace FontEditor
+namespace FontEditor.View
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
+    /// this is common part, PLEASE don't waste it unless it is extremeley needed (common logic, etc)
     /// 
-
-
-
+    
     public partial class MainWindow : Window
     {
         enum Tabs
@@ -31,27 +29,25 @@ namespace FontEditor
             FONT_EDIT,
             TEXT_EDIT
         };
-        private FontEditor.Model.Curve[] currentCurves;
-        private Stack<Point> currentPoints; // all points on current frame; each sequential quad of them gives us a curve
-                 // we nned to store points in order to be able to remove recently drawn
+
         private Tabs m_currentTab = Tabs.FONT_EDIT;
-
-
+        
         public MainWindow()
         {
             InitializeComponent();
+            initFontTab();
+            initTextTab();
         }
 
         private void fontCanvas_MouseLeftButtonDown(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            System.Windows.MessageBox.Show("You have clicked canvas", "My Application");
 
             // understand whether user clicked on already existing point or he created new point
         }
 
         private void fontCanvas_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            System.Windows.MessageBox.Show("You are moving mouse", "My Application");
+            //System.Windows.MessageBox.Show("You are moving mouse", "My Application");
 
             // if point was clicked or just has been created, we pull this point
         }
@@ -59,19 +55,19 @@ namespace FontEditor
         private void tabControl1_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Contains(fontTab))
+            {
                 m_currentTab = Tabs.FONT_EDIT;
+                onFontTabSelected();
+                onEditTabUnselected();
+            }
             else
+            {
                 m_currentTab = Tabs.TEXT_EDIT;
+                onEditTabSelected();
+                onFontTabUnselected();
+            }
 
         }
-
-        private void tabControl1_Selected(Object sender, TabControlEventArgs e)
-        {
-            System.Windows.MessageBox.Show("You are moving mouse", "My Application");
-        }
-
-
-        
     }
 
     
