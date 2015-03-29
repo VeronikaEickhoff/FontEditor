@@ -39,19 +39,6 @@ namespace FontEditor.View
             initTextTab();
         }
 
-        private void fontCanvas_MouseLeftButtonDown(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-
-            // understand whether user clicked on already existing point or he created new point
-        }
-
-        private void fontCanvas_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            //System.Windows.MessageBox.Show("You are moving mouse", "My Application");
-
-            // if point was clicked or just has been created, we pull this point
-        }
-
         private void tabControl1_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Contains(fontTab))
@@ -68,6 +55,23 @@ namespace FontEditor.View
             }
 
         }
+
+        private void tabControl1_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (m_currentTab == Tabs.TEXT_EDIT)
+            {
+                textTabMouseDown(sender, e);
+            }
+        }
+
+        private void tabControl1_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (m_currentTab == Tabs.TEXT_EDIT)
+            {
+                textTabKeyDown(sender, e);
+            }
+        }
+
     }
 
     

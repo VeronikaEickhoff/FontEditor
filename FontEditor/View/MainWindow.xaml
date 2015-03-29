@@ -6,7 +6,7 @@
         Background="Bisque">
 
 
-    <TabControl x:Name="tabControl1" HorizontalAlignment="Left" Height="350" Margin="0,0,0,0" VerticalAlignment="Top" Width="520"  Background="Bisque" SelectionChanged="tabControl1_SelectionChanged">
+    <TabControl x:Name="tabControl1" HorizontalAlignment="Left" Height="350" Margin="0,0,0,0" VerticalAlignment="Top" Width="520"  Background="Bisque" SelectionChanged="tabControl1_SelectionChanged" MouseDown="tabControl1_MouseDown" KeyDown="tabControl1_KeyDown">
 
 
         <TabItem Name="fontTab" Header="Font editor" Margin="0,0,0,-1" Width="262"
@@ -98,7 +98,8 @@
             </TabItem.Style>
             
             <ScrollViewer Height="200" Width="500" Margin="0, 50, 0, 30" HorizontalAlignment="Left" VerticalAlignment="Top">
-                <Canvas Name="editCanvas" Margin="0,0,0,0"  Width="480" Height="400" Background="AntiqueWhite" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <Canvas Name="editCanvas" Margin="0,0,0,0"  Width="480" Height="400" Background="AntiqueWhite" HorizontalAlignment="Left" VerticalAlignment="Top"
+                        KeyDown="editCanvas_KeyDown" KeyUp="editCanvas_KeyUp" MouseDown="editCanvas_MouseDown"/>
        
             </ScrollViewer>
 
