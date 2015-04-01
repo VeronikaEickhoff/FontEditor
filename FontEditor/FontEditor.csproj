@@ -63,8 +63,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Contoller\KeyTranslator.cs" />
+    <Compile Include="Contoller\SegmentController.cs" />
+    <Compile Include="Model\KeyTranslator.cs" />
     <Compile Include="Model\Curve.cs" />
+    <Compile Include="View\DrawableCurve.cs" />
     <Compile Include="View\FontTab.cs" />
     <Compile Include="View\TextTab.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
@@ -97,7 +99,9 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

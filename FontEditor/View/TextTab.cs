@@ -172,7 +172,7 @@ namespace FontEditor.View
                     }
                     return;
                 }
-                Font.Letter newLetter = Add(Font.getLetter(ch));
+                Font.Letter newLetter = Font.getLetter(ch);
                 newLetter.scale(m_fontWidth, m_fontHeight);
                 newLetter.setPosition(m_cursorTop.X, m_cursorTop.Y);
                 editCanvas.Children.Add(newLetter);*/

@@ -4,15 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Diagnostics;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Shapes;
+
+using FontEditor.Model;
+using FontEditor.Contoller;
 
 // Veronika codes here
 namespace FontEditor.View
 {
     public partial class MainWindow : Window
     {
+        private Point m_startMouseClick;
+        private SegmentController m_segmentController;
+
         private void initFontTab()
-        { 
-            // write here what should be done on window creation
+        {
+            m_segmentController = new SegmentController(fontCanvas);
         }
 
         private void onFontTabSelected()
@@ -28,15 +38,26 @@ namespace FontEditor.View
 
         private void fontCanvas_MouseLeftButtonDown(object sender, System.Windows.Input.MouseEventArgs e)
         {
+            m_startMouseClick = e.GetPosition(fontCanvas);
+            m_segmentController.onMouseDown(m_startMouseClick);
+        }
 
-            // understand whether user clicked on already existing point or he created new point
+        private void fontCanvas_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            Point endPoint = e.GetPosition(fontCanvas);
+            m_segmentController.onMouseUp(endPoint);
         }
 
         private void fontCanvas_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            //System.Windows.MessageBox.Show("You are moving mouse", "My Application");
+            m_segmentController.onMouseMove(e.GetPosition(fontCanvas));
+        }
 
-            // if point was clicked or just has been created, we pull this point
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBoxItem item = ((sender as System.Windows.Controls.ComboBox).SelectedItem as ComboBoxItem);
+            System.Diagnostics.Debug.WriteLine(item.Name);
         }
     }
 }
