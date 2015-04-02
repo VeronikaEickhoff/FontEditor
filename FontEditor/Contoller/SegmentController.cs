@@ -15,7 +15,7 @@ namespace FontEditor.Contoller
 {
     class SegmentController
     {
-        enum ControllerState
+        internal enum ControllerState
         { 
             ADD,
             MOVE
@@ -24,7 +24,7 @@ namespace FontEditor.Contoller
         private PathGeometry m_path;
         private LinkedList<DrawableCurve> m_curves;
         private double m_touchRadius = 20;
-        private ControllerState m_state = ControllerState.ADD;
+        public ControllerState m_state = ControllerState.ADD;
         private DrawableCurve m_touchedCurve = null;
         private int m_touchedPointIdx = -1;
         private Vector m_prevMousePos;
