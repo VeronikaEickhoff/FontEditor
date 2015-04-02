@@ -59,5 +59,11 @@ namespace FontEditor.View
             ComboBoxItem item = ((sender as System.Windows.Controls.ComboBox).SelectedItem as ComboBoxItem);
             System.Diagnostics.Debug.WriteLine(item.Name);
         }
+
+        private void onChangeStateClick()
+        {
+            m_segmentController.m_state = m_segmentController.m_state == SegmentController.ControllerState.ADD ?
+                SegmentController.ControllerState.MOVE : SegmentController.ControllerState.ADD;
+        }
     }
 }
