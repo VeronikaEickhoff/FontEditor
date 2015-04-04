@@ -25,7 +25,6 @@ namespace FontEditor.Model
         
         public void translate(int idx, Vector dv)
         {
-            System.Diagnostics.Debug.WriteLine(dv.ToString());
             switch (idx)
             {
                 case 0:
@@ -42,10 +41,22 @@ namespace FontEditor.Model
                 case 1:
                     m_points[idx] += dv;
                     break;
+                case -1: // just translate all the points
+                    for (int i = 0; i < 4; i++)
+                        m_points[i] += dv;
+                    break;
                 default:
                     return;
             }
 
+        }
+
+        void setPointPosition(int idx, Vector pos)
+        {
+            if (idx >= 0 && idx <= 3)
+            {
+                translate(idx, pos - (Vector)m_points[idx]);
+            }
         }
 
         public Point[] getPoints() 

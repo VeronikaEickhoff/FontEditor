@@ -57,7 +57,6 @@ namespace FontEditor.View
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ComboBoxItem item = ((sender as System.Windows.Controls.ComboBox).SelectedItem as ComboBoxItem);
-            System.Diagnostics.Debug.WriteLine(item.Name);
         }
 
         private void onChangeStateClick()
