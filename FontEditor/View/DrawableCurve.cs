@@ -148,6 +148,7 @@ namespace FontEditor.View
 
         public void translate(int idx, Vector dv)
         {
+			System.Diagnostics.Debug.WriteLine(idx.ToString());
             m_curve.translate(idx, dv);
             Point[] p = m_curve.getPoints();
             m_segment.Point1 = p[1];
@@ -163,8 +164,6 @@ namespace FontEditor.View
             if (idx == 3 && m_next != null)
             {
                 m_next.translate(0, dv);
-				if (m_pathIsClosed && m_next.Equals(m_figure.Segments.First()))
-					m_figure.StartPoint += dv;
             }
 
             if (m_isStartCurve && m_figure != null)
@@ -173,10 +172,10 @@ namespace FontEditor.View
             }
         }
 
-        public void attach(DrawableCurve closestCurve, int closestIdx, int closestOtherIdx)
+        public bool attach(DrawableCurve closestCurve, int closestIdx, int closestOtherIdx)
         {
             if (closestCurve == null || (closestIdx != 3 && closestIdx != 0) || (closestOtherIdx != 0 && closestOtherIdx != 3))
-                return;
+                return false;
 
             Point[] closestCurvePoints = closestCurve.getPoints();
             Vector dv = (Vector)closestCurvePoints[closestOtherIdx] - (Vector)m_curve.getPoints()[closestIdx];
@@ -185,6 +184,7 @@ namespace FontEditor.View
 				if (m_figure.Equals(closestCurve.m_figure))
 				{
 					m_pathIsClosed = true;
+					m_figure.IsFilled = true;
 					translate(closestIdx, dv);
 				}	
 			}
@@ -274,16 +274,7 @@ namespace FontEditor.View
                 m_prev = closestCurve;
                 closestCurve.m_next = this;
             }
-            cur = this.m_next;
-            while (cur != null)
-            {
-                if (cur.Equals(this))
-                {
-					//m_figure.IsClosed = true;
-                    break;
-                }
-                cur = cur.m_next;
-            }
+			return true;
         }
 
         public bool hasNext()

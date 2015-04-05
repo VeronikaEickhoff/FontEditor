@@ -86,6 +86,10 @@ namespace FontEditor.Controller
                             m_touchedCurve = new DrawableCurve(new Curve(v, v), closestCurve, m_canvas, this, headIsCLoserThanTail);
                             m_pathsToCurves[m_curvesToPaths[closestCurve]].AddLast(m_touchedCurve);
                             m_curvesToPaths[m_touchedCurve] = m_curvesToPaths[closestCurve];
+							if (headIsCLoserThanTail)
+								m_touchedPointIdx = 0;
+							else
+								m_touchedPointIdx = 3;
                         }
                         else
                         {
@@ -106,12 +110,11 @@ namespace FontEditor.Controller
                             m_touchedCurve = new DrawableCurve(new Curve(v, v), pg, m_canvas, this);
                             m_pathsToCurves[path].AddLast(m_touchedCurve);
                             m_curvesToPaths[m_touchedCurve] = path;
+							
+							m_touchedPointIdx = 3;
                         }
                         m_curves.AddLast(m_touchedCurve);
-                        if (headIsCLoserThanTail)
-                            m_touchedPointIdx = 0;
-                        else
-                            m_touchedPointIdx = 3;
+                        
                         m_prevMousePos = v;
                     }
                     break;
@@ -178,12 +181,12 @@ namespace FontEditor.Controller
 
                 if (closestDistToHead < closestDistToTail && closestDistToHead < m_touchRadius && closestCurveToHead != null)
                 {
-                    firstCurve.attach(closestCurveToHead, closestIdx, closestOtherIdxToHead);
+                    firstCurve.attach(closestCurveToHead, 0, closestOtherIdxToHead);
                     newPath = m_curvesToPaths[closestCurveToHead];
                 }
                 else if (closestDistToTail < closestDistToHead && closestDistToTail < m_touchRadius && closestCurveToTail != null)
                 {
-                    lastCurve.attach(closestCurveToHead, closestIdx, closestOtherIdxToTail);
+                    lastCurve.attach(closestCurveToTail, 3, closestOtherIdxToTail);
                     newPath = m_curvesToPaths[closestCurveToTail];
                 }
 
@@ -210,42 +213,32 @@ namespace FontEditor.Controller
                     if (m_touchedPointIdx != 0 && m_touchedPointIdx != 3)
                         goto EXIT;
 
-                    int closestIdx = 0;
                     double closestDist = 0;
                     DrawableCurve closestCurve= null;
                     int closestOtherIdx = 0;
 					Path newPath = null;
 
-					if (!m_touchedCurve.hasPrev() && m_touchedPointIdx == 0)
+					if (m_touchedCurve.hasPrev() && m_touchedPointIdx == 0)
 					{
-						closestIdx = 0;
-						findClosestCurve(m_touchedCurve, 0, out closestDist, out closestCurve, out closestOtherIdx);
+						goto EXIT;
 					}
-					else if (!m_touchedCurve.hasNext() && m_touchedPointIdx == 3)
+					else if (m_touchedCurve.hasNext() && m_touchedPointIdx == 3)
 					{
-						closestIdx = 3;
-						findClosestCurve(m_touchedCurve, 3, out closestDist, out closestCurve, out closestOtherIdx);
+						goto EXIT;
 					}
 
-                    if (closestDist < m_touchRadius && closestCurve != null)
-                    {
-                        m_touchedCurve.attach(closestCurve, closestIdx, closestOtherIdx);
-						newPath = m_curvesToPaths[closestCurve];
-                    }
-
-					Path currentPath = m_curvesToPaths[m_touchedCurve];
-
-					if (newPath != null && newPath != currentPath)
+					findClosestCurve(m_touchedCurve, m_touchedPointIdx, out closestDist, out closestCurve, out closestOtherIdx);
+					if (closestDist < m_touchRadius && closestCurve != null)
 					{
-						foreach (DrawableCurve dc in m_pathsToCurves[currentPath])
+						attachCurves(m_touchedCurve, closestCurve, m_touchedPointIdx, closestOtherIdx);
+						if (m_touchedPointIdx == 0)
 						{
-							m_pathsToCurves[newPath].AddLast(dc);
-							m_curvesToPaths[dc] = newPath;
+							m_touchedPointIdx = 3;
+							if (closestOtherIdx == 3)
+								m_touchedCurve = closestCurve;
 						}
-						m_paths.Remove(currentPath);
-						m_pathsToCurves.Remove(currentPath);
-						m_canvas.Children.Remove(currentPath); // Here
 					}
+
                 }
                 else
                 {
@@ -256,6 +249,26 @@ namespace FontEditor.Controller
             m_prevMousePos = v;
             m_canvas.UpdateLayout();
         }
+
+		private void attachCurves(DrawableCurve child, DrawableCurve parent, int childIdx, int parentIdx)
+		{
+			child.attach(parent, childIdx, parentIdx);
+			Path newPath = m_curvesToPaths[parent];
+
+			Path currentPath = m_curvesToPaths[child];
+
+			if (newPath != null && newPath != currentPath)
+			{
+				foreach (DrawableCurve dc in m_pathsToCurves[currentPath])
+				{
+					m_pathsToCurves[newPath].AddLast(dc);
+					m_curvesToPaths[dc] = newPath;
+				}
+				m_paths.Remove(currentPath);
+				m_pathsToCurves.Remove(currentPath);
+				m_canvas.Children.Remove(currentPath); // Here
+			}
+		}
 
         private void findClosestCurve(DrawableCurve testedCurve, int testedCurveIdx, out double closestDist, out DrawableCurve closestCurve, out int closestOtherIdx) 
         {
