@@ -64,9 +64,8 @@ namespace FontEditor.View
             m_segment = new BezierSegment(p[1], p[2], p[3], true);
          
             m_figure.Segments.Add(m_segment);
-
+			
             pathGeometry.Figures.Add(m_figure);
-            
             m_points = new List<Ellipse>(4);
             for (int i = 0; i < 4; i++)
             {
@@ -93,7 +92,7 @@ namespace FontEditor.View
                 Width = radiuses[i]*2,
                 Height = radiuses[i]*2,
             };
-
+			
             ellipse.MouseDown += ellipse_MouseDown;
             ellipse.MouseEnter += ellipse_MouseMove;
             ellipse.MouseUp += ellipse_MouseUp;

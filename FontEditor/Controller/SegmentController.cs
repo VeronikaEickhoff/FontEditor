@@ -94,6 +94,7 @@ namespace FontEditor.Controller
                         else
                         {
                             PathGeometry pg = new PathGeometry();
+							pg.FillRule = FillRule.EvenOdd;
                             m_pathGeometries.Add(pg);
 
                             System.Windows.Shapes.Path path = new Path();
