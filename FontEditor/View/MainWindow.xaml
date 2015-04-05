@@ -46,7 +46,7 @@
                     </Setter>
                 </Style>
             </TabItem.Style>
-            <Border Height="200" Width="273" Margin="10,12,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" BorderThickness="2" BorderBrush="Pink">
+            <Border Height="347" Width="459" Margin="10,12,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" BorderThickness="2" BorderBrush="Pink">
                 <Canvas 
                     Name="fontCanvas"
                     Height="340" 
@@ -59,11 +59,11 @@
                     MouseLeftButtonDown="fontCanvas_MouseLeftButtonDown"
                     MouseLeftButtonUp="fontCanvas_MouseLeftButtonUp">
                     <TextBox Height="23" Canvas.Left="480" TextWrapping="Wrap" Text="TextBox" Canvas.Top="73" Width="120"/>
-                    <Button Content="MOVE / ADD" Canvas.Left="480" Canvas.Top="122" Width="75" Click="Button_Click"/>
-                    <ComboBox Canvas.Left="480" Canvas.Top="34" Width="120" SelectionChanged="ComboBox_SelectionChanged" SelectedIndex="0">
-                        <ComboBoxItem Name="close">Close curve</ComboBoxItem>
-                        <ComboBoxItem Name="open">Open curve</ComboBoxItem>
-                    </ComboBox>
+
+                    <StackPanel Height="36" Canvas.Left="480" Canvas.Top="123" Width="118">
+                        <RadioButton Content="Draw" Checked="RadioButton_Checked" IsChecked="True"/>
+                        <RadioButton Content="Move" Checked="RadioButton_Checked"/>
+                    </StackPanel>
                 </Canvas>
             </Border>
         </TabItem>

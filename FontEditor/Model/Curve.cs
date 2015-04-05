@@ -19,8 +19,8 @@ namespace FontEditor.Model
             m_points = new Point[4];
             m_points[0] = (Point)begin;
             m_points[3] = (Point)end;
-            m_points[1] = (Point)((1 - t1) * begin + t1 * end + new Vector(50,1));
-            m_points[2] = (Point)((1 - t2) * begin + t2 * end + new Vector(-50, 1));
+            m_points[1] = (Point)((1 - t1) * begin + t1 * end + new Vector(10,1));
+            m_points[2] = (Point)((1 - t2) * begin + t2 * end + new Vector(-10, 1));
         }
         
         public void translate(int idx, Vector dv)
@@ -62,6 +62,19 @@ namespace FontEditor.Model
         public Point[] getPoints() 
         {
             return m_points;
+        }
+
+        private void swapPoints(int ind1, int ind2)
+        {
+            Point temp = m_points[ind1];
+            m_points[ind1] = m_points[ind2];
+            m_points[ind2] = temp;
+        }
+
+        public void changeOrientation()
+        {
+            swapPoints(0, 3);
+            swapPoints(1, 2);
         }
     }
 }

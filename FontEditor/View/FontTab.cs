@@ -10,7 +10,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 
 using FontEditor.Model;
-using FontEditor.Contoller;
+using FontEditor.Controller;
 
 // Veronika codes here
 namespace FontEditor.View
@@ -59,10 +59,22 @@ namespace FontEditor.View
             ComboBoxItem item = ((sender as System.Windows.Controls.ComboBox).SelectedItem as ComboBoxItem);
         }
 
-        private void onChangeStateClick()
-        {
-            m_segmentController.m_state = m_segmentController.m_state == SegmentController.ControllerState.ADD ?
-                SegmentController.ControllerState.MOVE : SegmentController.ControllerState.ADD;
-        }
+		private void RadioButton_Checked(object sender, RoutedEventArgs e)
+		{
+			RadioButton btn = (RadioButton)sender;
+
+			if (m_segmentController != null)
+			{
+				switch (btn.Content.ToString())
+				{
+					case "Draw":
+						m_segmentController.m_state = Controller.SegmentController.ControllerState.ADD;
+						break;
+					case "Move":
+						m_segmentController.m_state = Controller.SegmentController.ControllerState.MOVE;
+						break;
+				}
+			}
+		}
     }
 }

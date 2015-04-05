@@ -63,7 +63,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Contoller\SegmentController.cs" />
+    <Compile Include="Controller\SegmentController.cs" />
     <Compile Include="Model\KeyTranslator.cs" />
     <Compile Include="Model\Curve.cs" />
     <Compile Include="View\DrawableCurve.cs" />

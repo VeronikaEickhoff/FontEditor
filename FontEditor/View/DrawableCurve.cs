@@ -12,7 +12,7 @@ using System.Windows.Shapes;
 using System.Diagnostics;
 using System.Windows.Input;
 
-using FontEditor.Contoller;
+using FontEditor.Controller;
 
 namespace FontEditor.View
 {
@@ -38,8 +38,6 @@ namespace FontEditor.View
 
         private DrawableCurve m_next;
         private DrawableCurve m_prev;
-        private int m_nextPointIdx;
-        private int m_prevPointIdx;
         private static double outerPointRadius = 6;
         private static double innerPointRadius = 4;
         private static double[] radiuses = { outerPointRadius, innerPointRadius, innerPointRadius, outerPointRadius };
@@ -48,7 +46,8 @@ namespace FontEditor.View
         private bool m_isTouched = false;
         private Point m_lastTouchPos;
         private SegmentController m_controller;
-        
+        private bool m_pathIsClosed = false;
+		private bool m_isStartCurve = false;
 
         public DrawableCurve(Curve curve, PathGeometry pathGeometry, Canvas myCanvas, SegmentController controller)
         {
@@ -63,6 +62,7 @@ namespace FontEditor.View
             m_segment = new BezierSegment(p[1], p[2], p[3], true);
          
             m_figure.Segments.Add(m_segment);
+
             pathGeometry.Figures.Add(m_figure);
             
             m_points = new List<Ellipse>(4);
@@ -77,6 +77,8 @@ namespace FontEditor.View
             m_controller = controller;
 
             m_next = null;
+			m_prev = null;
+			m_isStartCurve = true;
         }
 
         private Ellipse CreateEllipse(int i)
@@ -107,37 +109,6 @@ namespace FontEditor.View
             ellipse.Opacity = 0.75;
         }
 
-     /*   void ellipse_MouseMove(object sender, MouseEventArgs e)
-        {
-            var ellipse = (Ellipse)sender;
-            int idx = m_points.IndexOf(ellipse);
-            if (idx == 3 && m_next != null)
-                return;
-
-            if (e.LeftButton != MouseButtonState.Pressed || !ellipse.IsMouseCaptured)
-                return;
-            var pos = e.GetPosition(m_canvas);
-            Canvas.SetLeft(ellipse, pos.X - ellipse.Width * 0.5);
-            Canvas.SetTop(ellipse, pos.Y - ellipse.Height * 0.5);
-            
-            translate(idx, (Vector)pos - (Vector)m_curve.getPoints()[idx]);
-            if (m_prev != null && idx == 0)
-                slaveEllipseMove(pos);
-        }
-
-        private void slaveEllipseMove(Point pos)
-        {
-            int idx = 3;
-            Ellipse ellipse = m_prev.m_points[idx];
-
-            Canvas.SetLeft(ellipse, pos.X - ellipse.Width * 0.5);
-            Canvas.SetTop(ellipse, pos.Y - ellipse.Height * 0.5);
-
-            Vector dv = (Vector)pos - (Vector)m_prev.m_curve.getPoints()[idx];
-            System.Diagnostics.Debug.WriteLine(dv.ToString());
-            m_prev.translate(idx, dv);
-        }*/
-
         void ellipse_MouseUp(object sender, MouseButtonEventArgs e)
         {
             var ellipse = (Ellipse)sender;
@@ -151,42 +122,26 @@ namespace FontEditor.View
         public DrawableCurve(Curve curve, DrawableCurve prev, Canvas canvas, SegmentController controller, bool connectToHead)
         {
             m_curve = curve;
-            m_figure = prev.m_figure;
+            m_figure = null;
 
             m_canvas = canvas;
             Point[] p = curve.getPoints();
             m_segment = new BezierSegment(p[1], p[2], p[3], true);
 
-            
-            if (!connectToHead)
-            {
-                m_figure.Segments.Add(m_segment);
-                m_next = null;
-                m_prev = prev;
-                prev.m_next = this;
-                m_prev.m_nextPointIdx = 0;
-                m_prevPointIdx = 3;
-            }
-            else
-            {
-                m_figure.Segments.Insert(0, m_segment);
-                m_figure.StartPoint = p[0];
-                m_next = prev;
-                prev.m_prev = this;
-                m_prev = null;
-                m_next.m_prevPointIdx = 3;
-                m_nextPointIdx = 0;
-            }
-
             m_points = new List<Ellipse>(4);
             for (int i = 0; i < 4; i++)
             {
-                Ellipse el = CreateEllipse(i); 
+                Ellipse el = CreateEllipse(i);
                 m_points.Add(el);
                 canvas.Children.Add(m_points[i]);
                 Canvas.SetLeft(el, p[i].X - radiuses[i]);
                 Canvas.SetTop(el, p[i].Y - radiuses[i]);
             }
+            
+            if (!connectToHead)
+                attach(prev, 0, 3);
+            else
+                attach(prev, 0, 0);
 
             m_controller = controller;
         }
@@ -208,11 +163,126 @@ namespace FontEditor.View
             if (idx == 3 && m_next != null)
             {
                 m_next.translate(0, dv);
+				if (m_pathIsClosed && m_next.Equals(m_figure.Segments.First()))
+					m_figure.StartPoint += dv;
             }
 
-            if (m_prev == null)
+            if (m_isStartCurve && m_figure != null)
             {
                 m_figure.StartPoint = p[0];
+            }
+        }
+
+        public void attach(DrawableCurve closestCurve, int closestIdx, int closestOtherIdx)
+        {
+            if (closestCurve == null || (closestIdx != 3 && closestIdx != 0) || (closestOtherIdx != 0 && closestOtherIdx != 3))
+                return;
+
+            Point[] closestCurvePoints = closestCurve.getPoints();
+            Vector dv = (Vector)closestCurvePoints[closestOtherIdx] - (Vector)m_curve.getPoints()[closestIdx];
+			if (m_figure != null)
+			{
+				if (m_figure.Equals(closestCurve.m_figure))
+				{
+					m_pathIsClosed = true;
+					translate(closestIdx, dv);
+				}	
+			}
+			if (!m_pathIsClosed)
+				translate(-1, dv);
+            DrawableCurve cur = this;
+
+            if (closestIdx == 0 && closestOtherIdx == 3)
+			{
+				if (!m_pathIsClosed)
+					m_isStartCurve = false;
+                while (cur != null)
+                {
+                    cur.m_figure = closestCurve.m_figure;
+					if (m_pathIsClosed)
+						m_figure.Segments.Remove(cur.m_segment);
+                    closestCurve.m_figure.Segments.Add(cur.m_segment);
+                    cur = cur.m_next;
+                }
+                
+                m_prev = closestCurve;
+                closestCurve.m_next = this;
+            }
+            else if (closestIdx == 0 && closestOtherIdx == 0)
+            {
+                while (cur != null)
+                {
+                    cur.m_figure = closestCurve.m_figure;
+                    cur.m_curve.changeOrientation();
+
+                    Point[] p = cur.getPoints();
+                    m_figure.StartPoint = p[0];
+
+                    cur.m_segment = new BezierSegment(p[1], p[2], p[3], true);
+                    m_figure.Segments.Insert(0, cur.m_segment);
+                    DrawableCurve next = cur.m_next;
+                    cur.m_next = cur.m_prev;
+                    cur.m_prev = next;
+					if (next == null)
+						cur.m_isStartCurve = true;
+                    cur = next;
+                }
+
+                m_next = closestCurve;
+				closestCurve.m_isStartCurve = false;
+                closestCurve.m_prev = this;
+            }
+            else if (closestIdx == 3 && closestOtherIdx == 0)
+            {
+                while (cur != null)
+                {
+                    cur.m_figure = closestCurve.m_figure;
+                    Point[] p = cur.getPoints();
+                    m_figure.StartPoint = p[0];
+					if (m_pathIsClosed)
+						m_figure.Segments.Remove(cur.m_segment);
+
+                    m_figure.Segments.Insert(0, cur.m_segment);
+                    DrawableCurve next = cur.m_next;
+                    cur = cur.m_prev;
+                }
+
+                m_next = closestCurve;
+				if (!m_pathIsClosed)
+					closestCurve.m_isStartCurve = false;
+                closestCurve.m_prev = this;
+            }
+            else
+            {
+                while (cur != null)
+                {
+                    cur.m_figure = closestCurve.m_figure;
+                    cur.m_curve.changeOrientation();
+
+                    Point[] p = cur.getPoints();
+
+                    cur.m_segment = new BezierSegment(p[1], p[2], p[3], true);
+                    m_figure.Segments.Add(cur.m_segment);
+                    DrawableCurve prev = cur.m_prev;
+                    cur.m_prev = cur.m_next;
+                    cur.m_next = prev;
+					if (prev == null)
+						cur.m_isStartCurve = false;
+                    cur = prev;
+                }
+
+                m_prev = closestCurve;
+                closestCurve.m_next = this;
+            }
+            cur = this.m_next;
+            while (cur != null)
+            {
+                if (cur.Equals(this))
+                {
+					//m_figure.IsClosed = true;
+                    break;
+                }
+                cur = cur.m_next;
             }
         }
 
