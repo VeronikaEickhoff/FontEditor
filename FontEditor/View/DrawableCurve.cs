@@ -42,7 +42,9 @@ namespace FontEditor.View
         private static double innerPointRadius = 4;
         private static double[] radiuses = { outerPointRadius, innerPointRadius, innerPointRadius, outerPointRadius };
         private static Brush[] untouchedBrushes = {Brushes.Black, Brushes.Gray, Brushes.Gray, Brushes.Black};
-        
+		private static Brush overBrush = Brushes.Olive;
+		private static Brush touchedBrush = Brushes.DeepPink;
+
         private bool m_isTouched = false;
         private Point m_lastTouchPos;
         private SegmentController m_controller;
@@ -89,13 +91,13 @@ namespace FontEditor.View
                 Stroke = untouchedBrushes[i],
                 Fill = untouchedBrushes[i],
                 Width = radiuses[i]*2,
-                Height = radiuses[i]*2
+                Height = radiuses[i]*2,
             };
 
             ellipse.MouseDown += ellipse_MouseDown;
-            //ellipse.MouseMove += ellipse_MouseMove;
+            ellipse.MouseEnter += ellipse_MouseMove;
             ellipse.MouseUp += ellipse_MouseUp;
-
+			ellipse.MouseLeave += ellipse_MouseLeave;
             return ellipse;
         }
 
@@ -106,8 +108,37 @@ namespace FontEditor.View
                 return;
             ellipse.CaptureMouse();
             ellipse.RenderTransform = new ScaleTransform(1.25, 1.25, ellipse.Width / 2, ellipse.Height / 2);
-            ellipse.Opacity = 0.75;
+            //ellipse.Opacity = 0.75;
+			ellipse.Stroke = touchedBrush;
+			ellipse.Fill = touchedBrush;
         }
+
+		void ellipse_MouseMove(object sender, MouseEventArgs e)
+		{
+			if (e.LeftButton == MouseButtonState.Pressed)
+				return;
+			Ellipse ellipse = (Ellipse)sender;
+
+			ellipse.Stroke = overBrush;
+			ellipse.Fill = overBrush;
+		}
+
+		void ellipse_MouseLeave(object sender, MouseEventArgs e)
+		{
+			if (e.LeftButton == MouseButtonState.Pressed)
+				return;
+			Ellipse ellipse = (Ellipse)sender;
+			if (ellipse.Width == 2 * radiuses[0])
+			{
+				ellipse.Fill = untouchedBrushes[0];
+				ellipse.Stroke = untouchedBrushes[0];
+			}
+			else
+			{
+				ellipse.Fill = untouchedBrushes[1];
+				ellipse.Stroke = untouchedBrushes[1];
+			}
+		}
 
         void ellipse_MouseUp(object sender, MouseButtonEventArgs e)
         {
@@ -117,6 +148,16 @@ namespace FontEditor.View
             ellipse.ReleaseMouseCapture();
             ellipse.RenderTransform = null;
             ellipse.Opacity = 1;
+			if (ellipse.Width == 2 * radiuses[0])
+			{
+				ellipse.Fill = untouchedBrushes[0];
+				ellipse.Stroke = untouchedBrushes[0];
+			}
+			else
+			{
+				ellipse.Fill = untouchedBrushes[1];
+				ellipse.Stroke = untouchedBrushes[1];
+			}
         }
 
         public DrawableCurve(Curve curve, DrawableCurve prev, Canvas canvas, SegmentController controller, bool connectToHead)
