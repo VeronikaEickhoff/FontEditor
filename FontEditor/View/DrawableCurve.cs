@@ -38,6 +38,8 @@ namespace FontEditor.View
 
         private DrawableCurve m_next;
         private DrawableCurve m_prev;
+        private int m_nextPointIdx;
+        private int m_prevPointIdx;
         private static double outerPointRadius = 6;
         private static double innerPointRadius = 4;
         private static double[] radiuses = { outerPointRadius, innerPointRadius, innerPointRadius, outerPointRadius };
@@ -59,14 +61,18 @@ namespace FontEditor.View
             m_figure.IsClosed = false;
 
             m_segment = new BezierSegment(p[1], p[2], p[3], true);
+         
             m_figure.Segments.Add(m_segment);
             pathGeometry.Figures.Add(m_figure);
-
+            
             m_points = new List<Ellipse>(4);
             for (int i = 0; i < 4; i++)
             {
-                m_points.Add(CreateEllipse(i));
+                Ellipse el = CreateEllipse(i);
+                m_points.Add(el);
                 m_canvas.Children.Add(m_points[i]);
+                Canvas.SetLeft(el, p[i].X - radiuses[i]);
+                Canvas.SetTop(el, p[i].Y - radiuses[i]);
             }
             m_controller = controller;
 
@@ -85,7 +91,7 @@ namespace FontEditor.View
             };
 
             ellipse.MouseDown += ellipse_MouseDown;
-            ellipse.MouseMove += ellipse_MouseMove;
+            //ellipse.MouseMove += ellipse_MouseMove;
             ellipse.MouseUp += ellipse_MouseUp;
 
             return ellipse;
@@ -101,7 +107,7 @@ namespace FontEditor.View
             ellipse.Opacity = 0.75;
         }
 
-        void ellipse_MouseMove(object sender, MouseEventArgs e)
+     /*   void ellipse_MouseMove(object sender, MouseEventArgs e)
         {
             var ellipse = (Ellipse)sender;
             int idx = m_points.IndexOf(ellipse);
@@ -113,11 +119,24 @@ namespace FontEditor.View
             var pos = e.GetPosition(m_canvas);
             Canvas.SetLeft(ellipse, pos.X - ellipse.Width * 0.5);
             Canvas.SetTop(ellipse, pos.Y - ellipse.Height * 0.5);
-
-            
             
             translate(idx, (Vector)pos - (Vector)m_curve.getPoints()[idx]);
+            if (m_prev != null && idx == 0)
+                slaveEllipseMove(pos);
         }
+
+        private void slaveEllipseMove(Point pos)
+        {
+            int idx = 3;
+            Ellipse ellipse = m_prev.m_points[idx];
+
+            Canvas.SetLeft(ellipse, pos.X - ellipse.Width * 0.5);
+            Canvas.SetTop(ellipse, pos.Y - ellipse.Height * 0.5);
+
+            Vector dv = (Vector)pos - (Vector)m_prev.m_curve.getPoints()[idx];
+            System.Diagnostics.Debug.WriteLine(dv.ToString());
+            m_prev.translate(idx, dv);
+        }*/
 
         void ellipse_MouseUp(object sender, MouseButtonEventArgs e)
         {
@@ -137,24 +156,36 @@ namespace FontEditor.View
             m_canvas = canvas;
             Point[] p = curve.getPoints();
             m_segment = new BezierSegment(p[1], p[2], p[3], true);
-            m_figure.Segments.Add(m_segment);
-            m_next = null;
-            m_prev = prev;
-            prev.m_next = this;
 
+            
             if (!connectToHead)
+            {
                 m_figure.Segments.Add(m_segment);
+                m_next = null;
+                m_prev = prev;
+                prev.m_next = this;
+                m_prev.m_nextPointIdx = 0;
+                m_prevPointIdx = 3;
+            }
             else
             {
                 m_figure.Segments.Insert(0, m_segment);
                 m_figure.StartPoint = p[0];
+                m_next = prev;
+                prev.m_prev = this;
+                m_prev = null;
+                m_next.m_prevPointIdx = 3;
+                m_nextPointIdx = 0;
             }
 
             m_points = new List<Ellipse>(4);
             for (int i = 0; i < 4; i++)
             {
-                m_points.Add(CreateEllipse(i));
+                Ellipse el = CreateEllipse(i); 
+                m_points.Add(el);
                 canvas.Children.Add(m_points[i]);
+                Canvas.SetLeft(el, p[i].X - radiuses[i]);
+                Canvas.SetTop(el, p[i].Y - radiuses[i]);
             }
 
             m_controller = controller;
@@ -174,6 +205,10 @@ namespace FontEditor.View
                 Canvas.SetTop(m_points[i], p[i].Y - radiuses[i]);
             }
 
+            if (idx == 3 && m_next != null)
+            {
+                m_next.translate(0, dv);
+            }
 
             if (m_prev == null)
             {
@@ -189,6 +224,11 @@ namespace FontEditor.View
         public bool hasPrev()
         {
             return m_prev != null;
+        }
+
+        public DrawableCurve getPrev()
+        {
+            return m_prev;
         }
 
         public Point[] getPoints()

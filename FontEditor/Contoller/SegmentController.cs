@@ -55,62 +55,96 @@ namespace FontEditor.Contoller
         {
             Vector v = (Vector)p;
             m_isMousePressed = true;
-
             switch (m_state)
             {
-            case ControllerState.ADD:
-                DrawableCurve closestCurve = null;
-                double closestDist = 1e305;
-                bool headIsCLoserThanTail = false;
-                    
-                foreach (DrawableCurve c in m_curves)
-                {
-                    Vector tail = (Vector)c.getPoints()[3];
-                    Vector head = (Vector)c.getPoints()[0];
-                    double distToTail = (tail - v).Length;
-                    double distToHead = (head - v).Length;
-                    if (distToTail < closestDist && !c.hasNext())
+                case ControllerState.ADD:
                     {
-                        closestDist = distToTail;
-                        closestCurve = c;
-                        headIsCLoserThanTail = false;
-                    }
-                    if (distToHead < closestDist && !c.hasPrev())
-                    {
-                        closestDist = distToHead;
-                        closestCurve = c;
-                        headIsCLoserThanTail = true;
-                    }
-                }
-                if (closestDist < m_touchRadius && closestCurve != null)
-                {
-                    m_touchedCurve = new DrawableCurve(new Curve(v, v), closestCurve, m_canvas, this, headIsCLoserThanTail);
-                    m_pathsToCurves[m_curvesToPaths[closestCurve]].AddLast(m_touchedCurve);
-                    m_curvesToPaths[m_touchedCurve] = m_curvesToPaths[closestCurve];
-                }
-                else
-                {
-                    PathGeometry pg = new PathGeometry();
-                    m_pathGeometries.Add(pg);
+                        DrawableCurve closestCurve = null;
+                        double closestDist = 1e305;
+                        bool headIsCLoserThanTail = false;
+                        foreach (DrawableCurve c in m_curves)
+                        {
+                            Vector tail = (Vector)c.getPoints()[3];
+                            Vector head = (Vector)c.getPoints()[0];
+                            double distToTail = (tail - v).Length;
+                            double distToHead = (head - v).Length;
+                            if (distToTail < closestDist && !c.hasNext())
+                            {
+                                closestDist = distToTail;
+                                closestCurve = c;
+                                headIsCLoserThanTail = false;
+                            }
+                            if (distToHead < closestDist && !c.hasPrev())
+                            {
+                                closestDist = distToHead;
+                                closestCurve = c;
+                                headIsCLoserThanTail = true;
+                            }
+                        }
+                        if (closestDist < m_touchRadius && closestCurve != null)
+                        {
+                            m_touchedCurve = new DrawableCurve(new Curve(v, v), closestCurve, m_canvas, this, headIsCLoserThanTail);
+                            m_pathsToCurves[m_curvesToPaths[closestCurve]].AddLast(m_touchedCurve);
+                            m_curvesToPaths[m_touchedCurve] = m_curvesToPaths[closestCurve];
+                        }
+                        else
+                        {
+                            PathGeometry pg = new PathGeometry();
+                            m_pathGeometries.Add(pg);
 
-                    System.Windows.Shapes.Path path = new Path();
-                    path.Stroke = Brushes.Black;
-                    path.Data = m_pathGeometries.Last();
-                    path.MouseDown += onCurveMouseDown;
+                            System.Windows.Shapes.Path path = new Path();
+                            path.Stroke = Brushes.Black;
+                            path.Data = m_pathGeometries.Last();
+                            path.StrokeThickness = 2;
+                            path.MouseDown += onCurveMouseDown;
+                            path.MouseEnter += onMouseOverPath;
+                            path.MouseLeave += onMouseLeftPath;
 
-                    m_paths.Add(path);
-                    m_pathsToCurves.Add(path, new LinkedList<DrawableCurve>());
-                    m_canvas.Children.Add(path); // Here
-                    m_touchedCurve = new DrawableCurve(new Curve(v, v), pg, m_canvas, this);
-                    m_pathsToCurves[path].AddLast(m_touchedCurve);
-                    m_curvesToPaths[m_touchedCurve] = path;
-                }
-                m_curves.AddLast(m_touchedCurve);
-                m_touchedPointIdx = 3;
-                m_prevMousePos = v;
-                break;
+                            m_paths.Add(path);
+                            m_pathsToCurves.Add(path, new LinkedList<DrawableCurve>());
+                            m_canvas.Children.Add(path); // Here
+                            m_touchedCurve = new DrawableCurve(new Curve(v, v), pg, m_canvas, this);
+                            m_pathsToCurves[path].AddLast(m_touchedCurve);
+                            m_curvesToPaths[m_touchedCurve] = path;
+                        }
+                        m_curves.AddLast(m_touchedCurve);
+                        if (headIsCLoserThanTail)
+                            m_touchedPointIdx = 0;
+                        else
+                            m_touchedPointIdx = 3;
+                        m_prevMousePos = v;
+                    }
+                    break;
             case ControllerState.MOVE: // this is processed by onCurveMouseDown()
-
+                {
+                    DrawableCurve closestCurve = null;
+                    double closestDist = 1e305;
+                    int closestIdx = 0;
+                    foreach (DrawableCurve c in m_curves)
+                    {
+                        Point[] points = c.getPoints();
+                        for (int i = 0; i < 4; i++)
+                        {
+                            double dist = ((Vector)points[i] - v).Length;
+                            if (closestDist > dist)
+                            {
+                                closestDist = dist;
+                                closestIdx = i;
+                                closestCurve = c;
+                            }
+                        }
+                    }
+                    if (closestDist < m_touchRadius && closestCurve != null)
+                    {
+                        m_touchedCurve = closestCurve;
+                        m_touchedPointIdx = closestIdx;
+                        if (m_touchedPointIdx == 0 && m_touchedCurve.hasPrev())
+                        {
+                            m_touchedCurve = m_touchedCurve.getPrev();
+                            m_touchedPointIdx = 3;
+                        }
+                    }
+                }
                 break;
             }
         }
@@ -126,14 +160,17 @@ namespace FontEditor.Contoller
                     c.translate(-1, v - m_prevMousePos);
                 }
             }
-
-            if (m_isMousePressed && m_touchedCurve != null)
-            {
-                m_touchedCurve.translate(m_touchedPointIdx, v - m_prevMousePos);
-            }
             else
-            { 
-                // highlight points over which the mouse is
+            {
+                if (m_isMousePressed && m_touchedCurve != null)
+                {
+
+                    m_touchedCurve.translate(m_touchedPointIdx, v - m_prevMousePos);
+                }
+                else
+                {
+                    // highlight points over which the mouse is
+                }
             }
             m_prevMousePos = v;
             m_canvas.UpdateLayout();
@@ -155,9 +192,28 @@ namespace FontEditor.Contoller
         private void onCurveMouseDown(object sender, MouseButtonEventArgs e)
         {
             var path = (Path)sender;
+            
             path.Stroke = new SolidColorBrush(Colors.DeepPink);
             m_prevMousePos = (Vector)e.GetPosition(m_canvas);
             m_touchedPath = path;
+        }
+
+        private void onMouseOverPath(object sender, MouseEventArgs e)
+        {
+            if (!m_isMousePressed)
+            {
+                Path path = (Path)sender;
+                path.Stroke = new SolidColorBrush(Colors.DarkOliveGreen);
+            }
+        }
+
+        private void onMouseLeftPath(object sender, MouseEventArgs e)
+        {
+            if (!m_isMousePressed)
+            {
+                Path path = (Path)sender;
+                path.Stroke = new SolidColorBrush(Colors.Black);
+            }
         }
 
         public void addSegment()
