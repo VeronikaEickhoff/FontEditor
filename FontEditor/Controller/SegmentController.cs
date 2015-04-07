@@ -48,7 +48,7 @@ namespace FontEditor.Controller
             
             m_curves = new LinkedList<DrawableCurve>();
             m_pathsToCurves = new Dictionary<Path, LinkedList<DrawableCurve>>();
-            m_curvesToPaths = new Dictionary<DrawableCurve, Path>();
+            m_curvesToPaths = new Dictionary<DrawableCurve, Path>(); 
         }
 
         public void onMouseDown(Point p) 
@@ -108,11 +108,12 @@ namespace FontEditor.Controller
                             m_paths.Add(path);
                             m_pathsToCurves.Add(path, new LinkedList<DrawableCurve>());
                             m_canvas.Children.Add(path); // Here
-                            m_touchedCurve = new DrawableCurve(new Curve(v, v), pg, m_canvas, this);
+                            m_touchedCurve = new DrawableCurve(new Curve(v, v), pg, m_canvas, this); // Here curve adds itself to canvas -> Bootstrapping
                             m_pathsToCurves[path].AddLast(m_touchedCurve);
                             m_curvesToPaths[m_touchedCurve] = path;
 							
 							m_touchedPointIdx = 3;
+
                         }
                         m_curves.AddLast(m_touchedCurve);
                         
@@ -345,6 +346,21 @@ namespace FontEditor.Controller
         public void addSegment()
         { 
         
+        }
+
+        public void showPreview(Grid previewCanvas)
+        {
+            // Combine all created PathGeometries into one path and show it in the preview canvas
+            var geometryGroup = new GeometryGroup {Children = new GeometryCollection(m_pathGeometries)};
+            var combinedPath = new Path
+            {
+                Data = geometryGroup,
+                Stroke = new SolidColorBrush(Colors.Black),
+                StrokeThickness = 2,
+                Stretch = Stretch.Fill,
+                Fill = new SolidColorBrush(Colors.Black)
+            };
+            previewCanvas.Children.Add(combinedPath);
         }
     }
 }

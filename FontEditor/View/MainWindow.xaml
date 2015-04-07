@@ -65,20 +65,26 @@
                         <RadioButton Content="Draw" Checked="RadioButton_Checked" IsChecked="True"/>
                         <RadioButton Content="Move" Checked="RadioButton_Checked"/>
                     </StackPanel>
-                    <Canvas Height="135" Canvas.Left="469" Canvas.Top="217" Width="160"  Background="AntiqueWhite">
-                    </Canvas>
+
+                    <Grid Name="previewGrid" Height="157" Width="147" Canvas.Left="480" Canvas.Top="217"/>
+
+<!--
+                    <Canvas Name="previewCanvas" Height="126" Canvas.Left="467" Canvas.Top="217" Width="152"  Background="AntiqueWhite">
+                    </Canvas>-->
+
+
                     <Label Content="Preview:" Canvas.Left="514" Canvas.Top="186"/>
                     <Label Content="Letter:" Canvas.Left="524" Canvas.Top="46" RenderTransformOrigin="-0.14,0.615"/>
                     <Button Canvas.Left="514" Canvas.Top="159" Width="75" RenderTransformOrigin="0.76,0.364">
-                        <Button Content="Button" Width="75"/>
+                        <Button Content="Done" Width="75" Click="Done_Click"/>
                     </Button>
                     <ComboBox Canvas.Left="490" Canvas.Top="1" Width="120"/>
                     <Button Content="Clear" Canvas.Left="552" Canvas.Top="103" Width="75"/>
                     <Label Content="Font:" Canvas.Left="454" RenderTransformOrigin="0.471,-0.115" Canvas.Top="1"/>
                     <Label Canvas.Left="646" Canvas.Top="95"/>
-                    <Button Content="Undo" Canvas.Left="552" Canvas.Top="130" Width="75"/>
+                    <Button Content="Undo" Canvas.Left="552" Canvas.Top="130" Width="75" Click="Undo_Click"/>
                     <Button Content="Save as" Canvas.Left="514" Canvas.Top="28" Width="75" RenderTransformOrigin="0.48,0.727"/>
-                    
+
                 </Canvas>
             </Border>
         </TabItem>

@@ -71,6 +71,16 @@ namespace FontEditor.View
             }
         }
 
+        private void Undo_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Done_Click(object sender, RoutedEventArgs e)
+        {
+            m_segmentController.showPreview(previewGrid);
+        }
+
 
 
     }
