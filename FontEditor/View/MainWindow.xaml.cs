@@ -73,7 +73,7 @@ namespace FontEditor.View
 
         private void Undo_Click(object sender, RoutedEventArgs e)
         {
-
+            m_segmentController.undo();
         }
 
         private void Done_Click(object sender, RoutedEventArgs e)
