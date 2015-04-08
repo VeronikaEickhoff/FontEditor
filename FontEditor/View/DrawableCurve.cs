@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FontEditor.Model;
-using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -16,7 +15,7 @@ using FontEditor.Controller;
 
 namespace FontEditor.View
 {
-    class DrawableCurve
+    class DrawableCurve// : ICloneable
     {
         enum PointState
         { 
@@ -336,5 +335,10 @@ namespace FontEditor.View
         {
             return m_curve.getPoints();
         }
+
+       /* public object Clone()
+        {
+            throw new NotImplementedException();
+        }*/
     }
 }

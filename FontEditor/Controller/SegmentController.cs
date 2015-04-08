@@ -210,7 +210,7 @@ namespace FontEditor.Controller
         // Clone everything!
         private void SaveStateBeforeAddingCurve()
         {
-            Path[] pathsCopyArray = { };
+           /* Path[] pathsCopyArray = { };
             m_paths.CopyTo(pathsCopyArray);
             m_pathsCopy = pathsCopyArray.ToList();
 
@@ -223,7 +223,7 @@ namespace FontEditor.Controller
 
             m_canvasCopy = WPFObjectCopier.Clone(m_canvas);
 
-            m_touchedPointIdxCopy = m_touchedPointIdx;
+            m_touchedPointIdxCopy = m_touchedPointIdx;*/
         }
 
         public void onMouseMove(Point p)
@@ -420,6 +420,7 @@ namespace FontEditor.Controller
 
         }
 
+        // Letter drawing is done, moving segments is still possible
         public void showPreview(Grid previewCanvas)
         {
             // Combine all created PathGeometries into one path and show it in the preview canvas
@@ -444,6 +445,21 @@ namespace FontEditor.Controller
              m_curvesToPaths.Remove(m_touchedCurve);
              m_touchedPointIdx = m_lastTouchedPointIdx;
              m_curves.Remove(m_touchedCurve);*/
+        }
+
+        // Letter editing is completely done - before saving
+        public Path CreateLetterPath()
+        {
+            var geometryGroup = new GeometryGroup { Children = new GeometryCollection(m_pathGeometries) };
+            var combinedPath = new Path
+            {
+                Data = geometryGroup,
+                Stroke = new SolidColorBrush(Colors.Black),
+                StrokeThickness = 2,
+                Stretch = Stretch.Fill,
+                Fill = new SolidColorBrush(Colors.Black)
+            };
+            return combinedPath;
         }
     }
 }

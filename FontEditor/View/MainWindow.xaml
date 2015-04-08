@@ -1,13 +1,13 @@
 ﻿<Window x:Class="FontEditor.View.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="474.379" Width="665.52"
+        Title="MainWindow" Height="491.293" Width="679.832"
         TabIndex="2"
         Background="Bisque"
         ResizeMode="NoResize">
 
 
-    <TabControl x:Name="tabControl1" HorizontalAlignment="Left" Height="446" Margin="0,0,-2,0" VerticalAlignment="Top" Width="662"  Background="Bisque" SelectionChanged="tabControl1_SelectionChanged" MouseDown="tabControl1_MouseDown" KeyDown="tabControl1_KeyDown">
+    <TabControl x:Name="tabControl1" HorizontalAlignment="Left" Width="680"  Background="Bisque" SelectionChanged="tabControl1_SelectionChanged" MouseDown="tabControl1_MouseDown" KeyDown="tabControl1_KeyDown" Margin="0,0,-6,-18">
 
 
         <TabItem Name="fontTab" Header="Font editor" Margin="0,0,0,-1" Width="262"
@@ -47,43 +47,47 @@
                     </Setter>
                 </Style>
             </TabItem.Style>
-            <Border Height="386" Width="455" Margin="10,12,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" BorderThickness="2" BorderBrush="Pink">
+            <Border Height="403" Width="455" Margin="10,12,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" BorderThickness="2" BorderBrush="Pink">
                 <Canvas 
                     Name="fontCanvas"
-                    Height="380" 
+                    Height="397" 
                     Width="450" 
-                    Margin="1,1,-2,-37" 
+                    Margin="1,1,0,-16" 
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     Background="AntiqueWhite"
                     MouseMove="fontCanvas_MouseMove"
                     MouseLeftButtonDown="fontCanvas_MouseLeftButtonDown"
                     MouseLeftButtonUp="fontCanvas_MouseLeftButtonUp">
-                    <TextBox Height="23" Canvas.Left="514" TextWrapping="Wrap" Text="TextBox" Canvas.Top="72" Width="71"/>
+                    <TextBox Name="LetterTextBox" IsEnabled="False" Height="23" Canvas.Left="514" TextWrapping="Wrap"  Canvas.Top="78" Width="24"/>
 
-                    <StackPanel Height="36" Canvas.Left="480" Canvas.Top="103" Width="58">
+                    <StackPanel Height="36" Canvas.Left="470" Canvas.Top="137" Width="58">
                         <RadioButton Content="Draw" Checked="RadioButton_Checked" IsChecked="True"/>
                         <RadioButton Content="Move" Checked="RadioButton_Checked"/>
                     </StackPanel>
 
-                    <Grid Name="previewGrid" Height="157" Width="147" Canvas.Left="480" Canvas.Top="217"/>
+                    <Grid Name="previewGrid" Height="157" Width="147" Canvas.Left="480" Canvas.Top="238"/>
+                    <Button Content="Done drawing" Width="88" Click="Done_Click" Canvas.Left="540" Canvas.Top="211"/>
 
-<!--
+                    <!--
                     <Canvas Name="previewCanvas" Height="126" Canvas.Left="467" Canvas.Top="217" Width="152"  Background="AntiqueWhite">
                     </Canvas>-->
 
-
-                    <Label Content="Preview:" Canvas.Left="514" Canvas.Top="186"/>
-                    <Label Content="Letter:" Canvas.Left="524" Canvas.Top="46" RenderTransformOrigin="-0.14,0.615"/>
-                    <Button Canvas.Left="514" Canvas.Top="159" Width="75" RenderTransformOrigin="0.76,0.364">
-                        <Button Content="Done" Width="75" Click="Done_Click"/>
-                    </Button>
-                    <ComboBox Canvas.Left="490" Canvas.Top="1" Width="120"/>
-                    <Button Content="Clear" Canvas.Left="552" Canvas.Top="103" Width="75"/>
-                    <Label Content="Font:" Canvas.Left="454" RenderTransformOrigin="0.471,-0.115" Canvas.Top="1"/>
+                    <!--
+                    <Label Content="Preview" Canvas.Left="527" Canvas.Top="212"/>
+-->
+                    <Label Name="LetterLabel" IsEnabled="False" Content="Letter" Canvas.Left="461" Canvas.Top="78" RenderTransformOrigin="-0.14,0.615"/>
+                    <Button Content="Clear" Canvas.Left="552" Canvas.Top="130" Width="75"/>
+                    <Label Name="LoadedFontLabel" Content="No font loaded" Canvas.Left="461" RenderTransformOrigin="0.471,-0.115" Canvas.Top="30"/>
                     <Label Canvas.Left="646" Canvas.Top="95"/>
-                    <Button Content="Undo" Canvas.Left="552" Canvas.Top="130" Width="75" Click="Undo_Click"/>
-                    <Button Content="Save as" Canvas.Left="514" Canvas.Top="28" Width="75" RenderTransformOrigin="0.48,0.727"/>
+                    <Button Content="Undo" Canvas.Left="552" Canvas.Top="157" Width="75" Click="Undo_Click"/>
+                    <Button Name="SaveLetterButton" IsEnabled="False" Content="Save letter" Canvas.Left="552" Canvas.Top="79" Width="75" RenderTransformOrigin="0.48,0.727" Click="SaveLetterButton_OnClick"/>
+                    <GroupBox Header="Font editor" Canvas.Left="461" Canvas.Top="-3" Height="114" Width="175">
+                        <Button Content="Create font" HorizontalAlignment="Left" Margin="84,2,0,0" VerticalAlignment="Top" Width="75" Click="CreateFontButton_Click" Height="25"/>
+                    </GroupBox>
+                    <GroupBox Header="Letter editor" Canvas.Left="461" Canvas.Top="111" Height="78" Width="175"/>
+                    <GroupBox Header="Preview" Canvas.Left="461" Canvas.Top="194" Height="214" Width="175"/>
+                    <Button Content="Load font" Canvas.Left="552" Canvas.Top="48" Width="75" Click="LoadFontButtonClick"/>
 
                 </Canvas>
             </Border>
@@ -125,13 +129,26 @@
                     </Setter>
                 </Style>
             </TabItem.Style>
-
-            <ScrollViewer Height="200" Width="500" Margin="0, 50, 0, 30" HorizontalAlignment="Left" VerticalAlignment="Top">
-                <Canvas Name="editCanvas" Margin="0,0,0,0"  Width="480" Height="400" Background="AntiqueWhite" HorizontalAlignment="Left" VerticalAlignment="Top"
+            <Canvas>
+                <ScrollViewer Height="0" Width="0" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="9" Canvas.Top="22">
+                    <Canvas Name="editCanvas" Background="AntiqueWhite" Height="1000"
                         KeyDown="editCanvas_KeyDown" KeyUp="editCanvas_KeyUp" MouseDown="editCanvas_MouseDown"/>
+                </ScrollViewer>
 
-            </ScrollViewer>
 
+
+                <Button Content="Load" Canvas.Left="561" Canvas.Top="49" Width="75" Click="LoadButton_OnClick"/>
+                <Label Name="TELoadedFontLabel" Content="No font loaded" Canvas.Left="444" Canvas.Top="47"/>
+                <GroupBox Header="Font" Canvas.Left="434" Canvas.Top="22" Height="66" Width="218"/>
+                <Button Content="Save" Canvas.Left="552" Canvas.Top="156" Width="75"/>
+                <Label Content="Type here" Canvas.Left="444" Canvas.Top="183"/>
+                <GroupBox Header="Text" Canvas.Left="434" Canvas.Top="129" Height="294" Width="218">
+                    <TextBox KeyUp="TextBox_KeyUp" HorizontalAlignment="Left" Height="204" Margin="4,65,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="198"/>
+                </GroupBox>
+                <Button Content="Load" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Canvas.Left="460" Canvas.Top="156"/>
+                <WrapPanel Name="TextEditorWrapPanel" Height="401" Canvas.Left="10" Canvas.Top="22" Width="405"/>
+
+            </Canvas>
         </TabItem>
 
     </TabControl>

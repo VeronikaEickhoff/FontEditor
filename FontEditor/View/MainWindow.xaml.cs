@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections;
+using System.IO;
 //using System.Timers;
 using FontEditor.Model;
 
@@ -70,17 +71,6 @@ namespace FontEditor.View
                 textTabKeyDown(sender, e);
             }
         }
-
-        private void Undo_Click(object sender, RoutedEventArgs e)
-        {
-            m_segmentController.undo();
-        }
-
-        private void Done_Click(object sender, RoutedEventArgs e)
-        {
-            m_segmentController.showPreview(previewGrid);
-        }
-
 
 
     }

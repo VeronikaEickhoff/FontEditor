@@ -8,9 +8,14 @@ using System.Windows.Input;
 using System.Windows.Shapes;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
-
+using System.Windows.Controls;
 using FontEditor.Contoller;
+using FontEditor.Model;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using TextBox = System.Windows.Controls.TextBox;
+
 /// Andrusha codes here
 /// naming convention: all private attributes with prefix 'm_'
 namespace FontEditor.View
@@ -46,8 +51,9 @@ namespace FontEditor.View
 
        // private List<Font.Letter> m_letters;
         private int m_lettersInLine = 0; // how many letters can fit in one line
-        //private Font m_currentFont;
 
+        private Font m_currentFont;
+        private Text m_text;
 
         [DllImport("kernel32.dll")]
         static extern bool AttachConsole(int dwProcessId);
@@ -224,5 +230,64 @@ namespace FontEditor.View
             p.Y = m_topTextMargin + (idx / m_lettersInLine) * (m_fontHeight + m_letterDistanceY);
         }
 
+
+        private void LoadButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog
+            {
+                DefaultExt = ".fnt",
+                Filter =
+                    "Fonts (*.fnt)|*.fnt"
+            };
+
+            var result = dlg.ShowDialog();
+            if (result != true) return;
+
+            m_currentFont = new Font(dlg.FileName);
+            TELoadedFontLabel.Content = System.IO.Path.GetFileNameWithoutExtension(dlg.FileName);
+        }
+
+        private Path ClonePath(Path source)
+        {
+            Path clone = new Path();
+            foreach (System.Reflection.PropertyInfo pi in typeof(Path).GetProperties())
+            {
+                if (pi.CanWrite && pi.CanRead)
+                {
+                    pi.SetValue(clone, pi.GetValue(source, null), null);
+                }
+            }
+            return clone;
+        }
+
+        private void TextBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (m_text == null)
+                m_text = new Text();
+
+            if (m_currentFont == null) return;
+
+            var textBox = sender as TextBox;
+
+            var letterName = textBox.Text[textBox.Text.Count() - 1];
+            
+            if (e.Key == Key.Back)
+            {
+                m_text.RemoveLast();
+                TextEditorWrapPanel.Children.RemoveAt(TextEditorWrapPanel.Children.Count - 1);
+                return;
+            }
+
+            Path letterPath = m_currentFont.FindLetter(letterName);
+            if (letterPath == null) return;
+
+            m_text.AddLast(new Letter(letterName, letterPath));
+
+            var p = ClonePath(letterPath);
+            Grid letterGrid = new Grid {Width = TextEditorWrapPanel.Width/10, Height = TextEditorWrapPanel.Height/10};
+            letterGrid.Children.Add(p);
+
+            TextEditorWrapPanel.Children.Add(letterGrid);
+        }
     }
 }
