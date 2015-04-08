@@ -24,7 +24,7 @@ namespace FontEditor.Model
             using (var sr = File.OpenText(m_fontFileName))
             {
                 var s = "";
-                while ((s = sr.ReadLine()) != null)
+                while ((s = sr.ReadLine()) != "-text-" && s != null)
                 {
                     var letter = new Letter(s);
                     m_letters.Add(letter.Name, letter.LetterPath);
@@ -47,9 +47,23 @@ namespace FontEditor.Model
 
         public Path FindLetter(char c)
         {
-            if (!m_letters.ContainsKey(c))
+            if (!m_letters.ContainsKey(Char.ToUpper(c)))
                 return null;
-            return m_letters[c];
+            return m_letters[Char.ToUpper(c)];
+        }
+
+        public void SaveFont(string filename)
+        {
+            using (var sw = File.CreateText(filename))
+            {
+                foreach (var letterElement in m_letters)
+                {
+                    var letter = new Letter(letterElement.Key, letterElement.Value);
+                    var serializedLetter = letter.Serialize();
+
+                    sw.WriteLine(serializedLetter);
+                }
+            }
         }
     }
 }

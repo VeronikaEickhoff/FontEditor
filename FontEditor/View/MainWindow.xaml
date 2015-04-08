@@ -140,12 +140,13 @@
                 <Button Content="Load" Canvas.Left="561" Canvas.Top="49" Width="75" Click="LoadButton_OnClick"/>
                 <Label Name="TELoadedFontLabel" Content="No font loaded" Canvas.Left="444" Canvas.Top="47"/>
                 <GroupBox Header="Font" Canvas.Left="434" Canvas.Top="22" Height="66" Width="218"/>
-                <Button Content="Save" Canvas.Left="552" Canvas.Top="156" Width="75"/>
+                <Button Content="Save" Canvas.Left="552" Canvas.Top="156" Width="75" Click="SaveText_OnClick"/>
                 <Label Content="Type here" Canvas.Left="444" Canvas.Top="183"/>
                 <GroupBox Header="Text" Canvas.Left="434" Canvas.Top="129" Height="294" Width="218">
-                    <TextBox KeyUp="TextBox_KeyUp" HorizontalAlignment="Left" Height="204" Margin="4,65,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="198"/>
+                    <TextBox Name="TextEditTextBox" KeyUp="TextBox_KeyUp" HorizontalAlignment="Left" Height="204" Margin="4,65,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="198"/>
                 </GroupBox>
-                <Button Content="Load" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Canvas.Left="460" Canvas.Top="156"/>
+                <Button Content="Load" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Canvas.Left="460" Canvas.Top="156" Click="LoadText_Click"/>
+                
                 <WrapPanel Name="TextEditorWrapPanel" Height="401" Canvas.Left="10" Canvas.Top="22" Width="405"/>
 
             </Canvas>

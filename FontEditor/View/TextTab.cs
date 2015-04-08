@@ -263,12 +263,14 @@ namespace FontEditor.View
         private void TextBox_KeyUp(object sender, KeyEventArgs e)
         {
             if (m_text == null)
-                m_text = new Text();
+                m_text = new Text(m_currentFont);
 
             if (m_currentFont == null) return;
 
             var textBox = sender as TextBox;
 
+            if (textBox.Text.Count() < 1)
+                return;
             var letterName = textBox.Text[textBox.Text.Count() - 1];
             
             if (e.Key == Key.Back)
@@ -289,5 +291,58 @@ namespace FontEditor.View
 
             TextEditorWrapPanel.Children.Add(letterGrid);
         }
+
+        private void SaveText_OnClick(object sender, RoutedEventArgs e)
+        {
+
+            var dlg = new Microsoft.Win32.SaveFileDialog
+            {
+                FileName = "MyFontText",
+                DefaultExt = ".fntxt",
+                Filter = "Font Text (*.fntxt)|*.fntxt"
+            };
+
+            // Show save font dialog box
+            var result = dlg.ShowDialog();
+
+            if (result != true) return;
+
+            // Save font
+            var filename = dlg.FileName;
+
+            m_text.SaveText(filename, TextEditTextBox.Text);
+        }
+
+        private void LoadText_Click(object sender, RoutedEventArgs e)
+        {
+            TextEditorWrapPanel.Children.Clear();
+
+            var dlg = new Microsoft.Win32.OpenFileDialog
+            {
+                DefaultExt = ".fntxt",
+                Filter =
+                    "Font Text (*.fntxt)|*.fntxt"
+            };
+
+            var result = dlg.ShowDialog();
+            if (result != true) return;
+
+            m_text = new Text(dlg.FileName);
+            TextEditTextBox.Text = m_text.m_text;
+
+            foreach (var letter in m_text.listOfLetters)
+            {
+                var p = ClonePath(letter.LetterPath);
+                Grid letterGrid = new Grid
+                {
+                    Width = TextEditorWrapPanel.Width/10,
+                    Height = TextEditorWrapPanel.Height/10
+                };
+                letterGrid.Children.Add(p);
+
+                TextEditorWrapPanel.Children.Add(letterGrid);
+            }
+        }
+
     }
 }

@@ -134,7 +134,7 @@ namespace FontEditor.View
         private void SaveLetterButton_OnClick(object sender, RoutedEventArgs e)
         {
             var letterPath = m_segmentController.CreateLetterPath();
-            var letter = new Letter(LetterTextBox.Text[0], letterPath);
+            var letter = new Letter(Char.ToUpper(LetterTextBox.Text[0]), letterPath);
             m_font.AddLetterToFont(letter);
         }
 
