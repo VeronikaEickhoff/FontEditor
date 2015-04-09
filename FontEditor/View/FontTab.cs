@@ -24,8 +24,8 @@ namespace FontEditor.View
         private Font m_font;
 
         private void initFontTab()
-        {
-            m_segmentController = new SegmentController(fontCanvas);
+		{
+            m_segmentController = new SegmentController(fontCanvas, previewGrid);
         }
 
         private void onFontTabSelected()
@@ -142,7 +142,7 @@ namespace FontEditor.View
 
         private void Done_Click(object sender, RoutedEventArgs e)
         {
-            m_segmentController.showPreview(previewGrid);
+            //m_segmentController.showPreview(previewGrid);
         }
 
         private void SaveLetterButton_OnClick(object sender, RoutedEventArgs e)

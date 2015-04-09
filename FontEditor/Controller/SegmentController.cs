@@ -40,7 +40,8 @@ namespace FontEditor.Controller
 		private Stack<SimpleAction> m_actions;
 		private Stack<int> m_firstPrevoiusAction;
 
-		private Vector m_startMousePos; 
+		private Vector m_startMousePos;
+		private Grid m_previewGrid;
 
         public void setTouchedCurve(DrawableCurve c, int touchedPoint)
         {
@@ -48,7 +49,7 @@ namespace FontEditor.Controller
             m_touchedPointIdx = touchedPoint;
         }
 
-        public SegmentController(Canvas canvas)
+        public SegmentController(Canvas canvas, Grid pg)
         {
             m_canvas = canvas;
 			m_pathGeometries = new Dictionary<Path, PathGeometry>();
@@ -58,6 +59,7 @@ namespace FontEditor.Controller
             m_curvesToPaths = new Dictionary<DrawableCurve, Path>();
 			m_actions = new Stack<SimpleAction>();
 			m_firstPrevoiusAction = new Stack<int>();
+			m_previewGrid = pg;
         }
 
         public void onMouseDown(Point p)
@@ -131,7 +133,7 @@ namespace FontEditor.Controller
 
                         }
                         m_curves.AddLast(m_touchedCurve);
-
+						updatePreview(m_previewGrid);
                         m_prevMousePos = v;
                     }
                     break;
@@ -286,6 +288,7 @@ namespace FontEditor.Controller
                 m_canvas.Children.Remove(currentPath); // Here
 				m_pathGeometries.Remove(currentPath);
             }
+
         }
 
         private void findClosestCurve(DrawableCurve testedCurve, int testedCurveIdx, out double closestDist, out DrawableCurve closestCurve, out int closestOtherIdx)
@@ -370,9 +373,10 @@ namespace FontEditor.Controller
         }
 
         // Letter drawing is done, moving segments is still possible
-        public void showPreview(Grid previewCanvas)
+        public void updatePreview(Grid previewCanvas)
         {
             // Combine all created PathGeometries into one path and show it in the preview canvas
+			previewCanvas.Children.Clear();
             var geometryGroup = new GeometryGroup { Children = new GeometryCollection(m_pathGeometries.Values) };
             var combinedPath = new Path
             {
