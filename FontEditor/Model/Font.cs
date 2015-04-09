@@ -35,6 +35,9 @@ namespace FontEditor.Model
         // Create letter and append it to the end of font file
         public void AddLetterToFont(Letter letter)
         {
+            if (m_letters.ContainsKey(Char.ToUpper(letter.Name)))
+                return;
+
             m_letters.Add(letter.Name, letter.LetterPath);
 
             var serializedLetter = letter.Serialize();

@@ -113,10 +113,19 @@ namespace FontEditor.View
                 File.Delete(filename);
             var fs = File.Create(filename);
             fs.Close();
+
+            m_font = new Font(dlg.FileName);
+            LoadedFontLabel.Content = Path.GetFileNameWithoutExtension(dlg.FileName);
+            LetterTextBox.IsEnabled = true;
+            SaveLetterButton.IsEnabled = true;
+            LetterEditor.IsEnabled = true;
         }
 
         private void LoadFontButtonClick(object sender, RoutedEventArgs e)
         {
+            LetterTextBox.Text = "";
+            m_segmentController.clear();
+
             var dlg = new Microsoft.Win32.OpenFileDialog
             {
                 DefaultExt = ".fnt",
@@ -131,7 +140,7 @@ namespace FontEditor.View
             LoadedFontLabel.Content = Path.GetFileNameWithoutExtension(dlg.FileName);
             LetterTextBox.IsEnabled = true;
             SaveLetterButton.IsEnabled = true;
-            LetterLabel.IsEnabled = true;
+            LetterEditor.IsEnabled = true;
         }
 
         private void Undo_Click(object sender, RoutedEventArgs e)
@@ -155,6 +164,7 @@ namespace FontEditor.View
 
 		private void Clear_Click(object sender, RoutedEventArgs e)
 		{
+            LetterTextBox.Text = "";
 			m_segmentController.clear();
 			Undo.IsEnabled = false;
 		}

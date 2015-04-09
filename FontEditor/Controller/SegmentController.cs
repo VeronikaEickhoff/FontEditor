@@ -42,6 +42,7 @@ namespace FontEditor.Controller
 
 		private Vector m_startMousePos;
 		private Grid m_previewGrid;
+        private Grid m_previewCanvas;
 
         public void setTouchedCurve(DrawableCurve c, int touchedPoint)
         {
@@ -375,6 +376,7 @@ namespace FontEditor.Controller
         // Letter drawing is done, moving segments is still possible
         public void updatePreview(Grid previewCanvas)
         {
+            m_previewCanvas = previewCanvas;
             // Combine all created PathGeometries into one path and show it in the preview canvas
 			previewCanvas.Children.Clear();
             var geometryGroup = new GeometryGroup { Children = new GeometryCollection(m_pathGeometries.Values) };
@@ -441,6 +443,8 @@ namespace FontEditor.Controller
 			m_actions.Clear();
 			m_firstPrevoiusAction.Clear();
 			m_curves.Clear();
+            if (m_previewCanvas != null)
+                m_previewCanvas.Children.Clear();
 		}
     }
 }

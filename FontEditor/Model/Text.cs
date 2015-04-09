@@ -64,6 +64,8 @@ namespace FontEditor.Model
 
         public void RemoveLast()
         {
+            if (listOfLetters.Count == 0) return;
+
             listOfLetters.RemoveAt(listOfLetters.Count - 1);
         }
 
