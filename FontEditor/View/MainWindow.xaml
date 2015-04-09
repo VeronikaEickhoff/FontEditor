@@ -47,8 +47,10 @@
                     </Setter>
                 </Style>
             </TabItem.Style>
-            <Border Height="403" Width="455" Margin="10,12,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" BorderThickness="2" BorderBrush="Pink">
-                <Canvas 
+
+            <Grid Margin="0,-3,0,0">
+                <Border Height="403" Width="455" Margin="10,12,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" BorderThickness="2" BorderBrush="Pink">
+                    <Canvas 
                     Name="fontCanvas"
                     Height="397" 
                     Width="450" 
@@ -58,39 +60,38 @@
                     Background="AntiqueWhite"
                     MouseMove="fontCanvas_MouseMove"
                     MouseLeftButtonDown="fontCanvas_MouseLeftButtonDown"
-                    MouseLeftButtonUp="fontCanvas_MouseLeftButtonUp">
-                    <TextBox Name="LetterTextBox" IsEnabled="False" Height="23" Canvas.Left="514" TextWrapping="Wrap"  Canvas.Top="78" Width="24"/>
+                    MouseLeftButtonUp="fontCanvas_MouseLeftButtonUp"/>
+                </Border>
+                <Grid x:Name="previewGrid" Margin="503,283,29,46" />
+                <TextBox x:Name="LetterTextBox" IsEnabled="False" Height="23" TextWrapping="Wrap" Width="24" Margin="544,150,102,276"/>
 
-                    <StackPanel Height="36" Canvas.Left="470" Canvas.Top="137" Width="58">
-                        <RadioButton Content="Draw" Checked="RadioButton_Checked" IsChecked="True"/>
-                        <RadioButton Content="Move" Checked="RadioButton_Checked"/>
-                    </StackPanel>
+                <StackPanel Height="36"  Width="58" Margin="494,179,118,235">
+                    <RadioButton Content="Draw" Checked="RadioButton_Checked" IsChecked="True"/>
+                    <RadioButton Content="Move" Checked="RadioButton_Checked"/>
+                </StackPanel>
+                <Button Content="Done drawing" Width="88" Click="Done_Click" Height="20" Margin="530,232,52,198"/>
 
-                    <Grid Name="previewGrid" Height="157" Width="147" Canvas.Left="480" Canvas.Top="238"/>
-                    <Button Content="Done drawing" Width="88" Click="Done_Click" Canvas.Left="540" Canvas.Top="211"/>
-
-                    <!--
+                <!--
                     <Canvas Name="previewCanvas" Height="126" Canvas.Left="467" Canvas.Top="217" Width="152"  Background="AntiqueWhite">
                     </Canvas>-->
 
-                    <!--
+                <!--
                     <Label Content="Preview" Canvas.Left="527" Canvas.Top="212"/>
 -->
-                    <Label Name="LetterLabel" IsEnabled="False" Content="Letter" Canvas.Left="461" Canvas.Top="78" RenderTransformOrigin="-0.14,0.615"/>
-                    <Button Content="Clear" Canvas.Left="552" Canvas.Top="130" Width="75"/>
-                    <Label Name="LoadedFontLabel" Content="No font loaded" Canvas.Left="461" RenderTransformOrigin="0.471,-0.115" Canvas.Top="30"/>
-                    <Label Canvas.Left="646" Canvas.Top="95"/>
-                    <Button Content="Undo" Canvas.Left="552" Canvas.Top="157" Width="75" Click="Undo_Click"/>
-                    <Button Name="SaveLetterButton" IsEnabled="False" Content="Save letter" Canvas.Left="552" Canvas.Top="79" Width="75" RenderTransformOrigin="0.48,0.727" Click="SaveLetterButton_OnClick"/>
-                    <GroupBox Header="Font editor" Canvas.Left="461" Canvas.Top="-3" Height="114" Width="175">
-                        <Button Content="Create font" HorizontalAlignment="Left" Margin="84,2,0,0" VerticalAlignment="Top" Width="75" Click="CreateFontButton_Click" Height="25"/>
-                    </GroupBox>
-                    <GroupBox Header="Letter editor" Canvas.Left="461" Canvas.Top="111" Height="78" Width="175"/>
-                    <GroupBox Header="Preview" Canvas.Left="461" Canvas.Top="194" Height="214" Width="175"/>
-                    <Button Content="Load font" Canvas.Left="552" Canvas.Top="48" Width="75" Click="LoadFontButtonClick"/>
+                <GroupBox Header="Font editor" Width="175" Margin="485,28,10,336">
+                    <Button Content="Create font" HorizontalAlignment="Left" Margin="84,2,0,0" VerticalAlignment="Top" Width="75" Click="CreateFontButton_Click" Height="25"/>
+                </GroupBox>
+                <GroupBox Header="Letter editor" Margin="485,119,5,235"/>
+                <Label Name="LetterLabel" IsEnabled="False" Content="Letter"  Margin="494,146,126,276"/>
+                <Button Content="Clear" Height="20" Width="75" Margin="575,162,20,268"/>
+                <Label Name="LoadedFontLabel" Content="No font loaded"  Margin="485,65,92,350"/>
+                <Button Name="Undo"  Content="Undo" Width="75" Height="20" Click="Undo_Click" IsEnabled="False" Margin="575,137,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" RenderTransformOrigin="0.493,-0.85"/>
+                <Button Name="SaveLetterButton" IsEnabled="False" Content="Save letter" Height ="20" Width="75" Click="SaveLetterButton_OnClick" Margin="575,191,20,239"/>
 
-                </Canvas>
-            </Border>
+
+                <GroupBox Header="Preview" Width="175" Margin="485,257,10,35"/>
+                <Button Content="Load font"  Width="75" Click="LoadFontButtonClick" Margin="575,80,20,0" Height="20" VerticalAlignment="Top"/>
+            </Grid>
         </TabItem>
         <TabItem Header="Text editor" Margin="0,0,0,-1" Width="250"
                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
