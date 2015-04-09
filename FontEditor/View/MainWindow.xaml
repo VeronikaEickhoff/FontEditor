@@ -1,13 +1,13 @@
 ﻿<Window x:Class="FontEditor.View.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="491.293" Width="679.832"
+        Title="MainWindow" Height="493.455" Width="690.644"
         TabIndex="2"
         Background="Bisque"
         ResizeMode="NoResize">
 
 
-    <TabControl x:Name="tabControl1" HorizontalAlignment="Left" Width="680"  Background="Bisque" SelectionChanged="tabControl1_SelectionChanged" MouseDown="tabControl1_MouseDown" KeyDown="tabControl1_KeyDown" Margin="0,0,-6,-18">
+    <TabControl x:Name="tabControl1" HorizontalAlignment="Left" Width="691"  Background="Bisque" SelectionChanged="tabControl1_SelectionChanged" MouseDown="tabControl1_MouseDown" KeyDown="tabControl1_KeyDown" Margin="0,0,-6,-18">
 
 
         <TabItem Name="fontTab" Header="Font editor" Margin="0,0,0,-1" Width="262"
@@ -48,7 +48,7 @@
                 </Style>
             </TabItem.Style>
 
-            <Grid Margin="0,-3,0,0">
+            <Grid Margin="0,0,-3,0">
                 <Border Height="403" Width="455" Margin="10,12,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" BorderThickness="2" BorderBrush="Pink">
                     <Canvas 
                     Name="fontCanvas"
@@ -63,13 +63,6 @@
                     MouseLeftButtonUp="fontCanvas_MouseLeftButtonUp"/>
                 </Border>
                 <Grid x:Name="previewGrid" Margin="503,283,29,46" />
-                <TextBox x:Name="LetterTextBox" IsEnabled="False" Height="23" TextWrapping="Wrap" Width="24" Margin="544,150,102,276"/>
-
-                <StackPanel Height="36"  Width="58" Margin="494,179,118,235">
-                    <RadioButton Content="Draw" Checked="RadioButton_Checked" IsChecked="True"/>
-                    <RadioButton Content="Move" Checked="RadioButton_Checked"/>
-                </StackPanel>
-                <Button Content="Done drawing" Width="88" Click="Done_Click" Height="20" Margin="530,232,52,198"/>
 
                 <!--
                     <Canvas Name="previewCanvas" Height="126" Canvas.Left="467" Canvas.Top="217" Width="152"  Background="AntiqueWhite">
@@ -78,19 +71,39 @@
                 <!--
                     <Label Content="Preview" Canvas.Left="527" Canvas.Top="212"/>
 -->
-                <GroupBox Header="Font editor" Width="175" Margin="485,28,10,336">
-                    <Button Content="Create font" HorizontalAlignment="Left" Margin="84,2,0,0" VerticalAlignment="Top" Width="75" Click="CreateFontButton_Click" Height="25"/>
+                <GroupBox Header="Font editor" Margin="480,12,19,350">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90*"/>
+                            <ColumnDefinition Width="73*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Name="LoadedFontLabel" HorizontalAlignment="Left" VerticalAlignment="Center" Content="No font loaded" Width="96" Margin="-6,21,0,19" Height="24"/>
+                        <Button Content="Create font" HorizontalAlignment="Left" VerticalAlignment="Top" Width="73" Height="25" Click="CreateFontButton_Click" Grid.Column="1"/>
+                        <Button Content="Load font" Click="LoadFontButtonClick" Height="25" VerticalAlignment="Bottom" Grid.Column="1" Margin="0,0,4,0" />
+                    </Grid>
                 </GroupBox>
-                <GroupBox Header="Letter editor" Margin="485,119,5,235"/>
-                <Label Name="LetterLabel" IsEnabled="False" Content="Letter"  Margin="494,146,126,276"/>
-                <Button Content="Clear" Height="20" Width="75" Margin="575,162,20,268"/>
-                <Label Name="LoadedFontLabel" Content="No font loaded"  Margin="485,65,92,350"/>
-                <Button Name="Undo"  Content="Undo" Width="75" Height="20" Click="Undo_Click" IsEnabled="False" Margin="575,137,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" RenderTransformOrigin="0.493,-0.85"/>
-                <Button Name="SaveLetterButton" IsEnabled="False" Content="Save letter" Height ="20" Width="75" Click="SaveLetterButton_OnClick" Margin="575,191,20,239"/>
+                <GroupBox Header="Letter editor" Margin="480,104,19,201">
+                    <Grid HorizontalAlignment="Left" Height="110" Margin="0,-14,-12,-22" VerticalAlignment="Top" Width="180">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="8*"/>
+                            <ColumnDefinition Width="7*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="Undo"  Content="Undo" Width="75" Height="25" Click="Undo_Click" IsEnabled="False" Margin="0,14,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" RenderTransformOrigin="0.493,-0.85" Grid.Column="1"/>
+                        <Button Content="Clear" Grid.Column="1" Margin="0,44,9,41"/>
+                        <Button x:Name="SaveLetterButton" IsEnabled="False" Content="Save letter" Click="SaveLetterButton_OnClick" Margin="0,74,9,10" Grid.Column="1"/>
+                        <Label x:Name="LetterLabel" IsEnabled="False" Content="Letter"  Margin="0,26,39,56"/>
+                        <TextBox x:Name="LetterTextBox" IsEnabled="False" TextWrapping="Wrap" Margin="51,30,16,56"/>
+                        <StackPanel Margin="11,61,22,13">
+                            <RadioButton Content="Draw" Checked="RadioButton_Checked" IsChecked="True"/>
+                            <RadioButton Content="Move" Checked="RadioButton_Checked"/>
+                        </StackPanel>
+                        <Button Content="Done drawing" Width="88" Click="Done_Click" Height="22" Margin="0,102,8,-14"/>
 
+                    </Grid>
+                </GroupBox>
 
-                <GroupBox Header="Preview" Width="175" Margin="485,257,10,35"/>
-                <Button Content="Load font"  Width="75" Click="LoadFontButtonClick" Margin="575,80,20,0" Height="20" VerticalAlignment="Top"/>
+                <GroupBox Header="Preview" Margin="480,269,19,19"/>
+                <Label x:Name="LetterLabel_Copy" IsEnabled="False" Content="Letter"  Margin="758,179,-138,243"/>
             </Grid>
         </TabItem>
         <TabItem Header="Text editor" Margin="0,0,0,-1" Width="250"
