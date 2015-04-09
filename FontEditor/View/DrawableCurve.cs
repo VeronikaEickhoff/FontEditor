@@ -206,7 +206,6 @@ namespace FontEditor.View
 			for (int i = 0; i < 4; i++)
 				m_canvas.Children.Remove(m_points[i]);
 
-
 		}
 
         public void translate(int idx, Vector dv)
@@ -381,7 +380,7 @@ namespace FontEditor.View
 				return false;
 
 			Point[] closestCurvePoints = closestCurve.getPoints();
-
+			bool pathWasClosed = m_pathIsClosed;
 			DrawableCurve cur = this;
 
 			if (closestIdx == 0 && closestOtherIdx == 3)
@@ -482,7 +481,9 @@ namespace FontEditor.View
 				closestCurve.m_next = null;
 				
 			}
-			translate(closestIdx, -dv);
+			if (!pathWasClosed)
+				translate(closestIdx, -dv);
+
 			return true;
 		}
 

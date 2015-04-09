@@ -41,7 +41,8 @@ namespace FontEditor.View
 
         private void fontCanvas_MouseLeftButtonDown(object sender, System.Windows.Input.MouseEventArgs e)
         {
-			if (System.Windows.Input.Mouse.DirectlyOver == fontCanvas) 
+			Point p = e.GetPosition(fontCanvas);
+			if (p.X < fontCanvas.Width && p.X >= 0 && p.Y < fontCanvas.Height && p.Y >= 0) 
 			{
 				m_startMouseClick = e.GetPosition(fontCanvas);
 				m_segmentController.onMouseDown(m_startMouseClick);
@@ -50,15 +51,22 @@ namespace FontEditor.View
 
         private void fontCanvas_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            Point endPoint = e.GetPosition(fontCanvas);
-            m_segmentController.onMouseUp(endPoint);
-			Undo.IsEnabled = !m_segmentController.hasEmptyActions();
+            Point p = e.GetPosition(fontCanvas);
+			if (p.X < fontCanvas.Width && p.X >= 0 && p.Y < fontCanvas.Height && p.Y >= 0)
+			{
+				m_segmentController.onMouseUp(p);
+				Undo.IsEnabled = !m_segmentController.hasEmptyActions();
+			}
 
         }
 
         private void fontCanvas_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            m_segmentController.onMouseMove(e.GetPosition(fontCanvas));
+			Point p = e.GetPosition(fontCanvas);
+			if (p.X < fontCanvas.Width && p.X >= 0 && p.Y < fontCanvas.Height && p.Y >= 0)
+			{
+				m_segmentController.onMouseMove(e.GetPosition(fontCanvas));
+			}
         }
 
 
@@ -143,6 +151,14 @@ namespace FontEditor.View
             var letter = new Letter(Char.ToUpper(LetterTextBox.Text[0]), letterPath);
             m_font.AddLetterToFont(letter);
         }
+
+
+		private void Clear_Click(object sender, RoutedEventArgs e)
+		{
+			m_segmentController.clear();
+			Undo.IsEnabled = false;
+		}
+
 
     }
 }

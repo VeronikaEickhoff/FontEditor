@@ -73,7 +73,7 @@ namespace FontEditor.Controller
 
                         DrawableCurve closestCurve = null;
                         double closestDist = 1e305;
-                        bool headIsCLoserThanTail = false;
+						int connectionIdx = 0;
                         foreach (DrawableCurve c in m_curves)
                         {
                             Vector tail = (Vector)c.getPoints()[3];
@@ -84,25 +84,23 @@ namespace FontEditor.Controller
                             {
                                 closestDist = distToTail;
                                 closestCurve = c;
-                                headIsCLoserThanTail = false;
+								connectionIdx = 3;
                             }
                             if (distToHead < closestDist && !c.hasPrev())
                             {
                                 closestDist = distToHead;
                                 closestCurve = c;
-                                headIsCLoserThanTail = true;
+								connectionIdx = 0;
                             }
                         }
                         if (closestDist < m_touchRadius && closestCurve != null)
                         {
-                            m_touchedCurve = new DrawableCurve(new Curve(v, v), closestCurve, m_canvas, this, headIsCLoserThanTail);
+							m_touchedPointIdx = connectionIdx;
+                            m_touchedCurve = new DrawableCurve(new Curve(v, v), closestCurve, m_canvas, this, connectionIdx == 0);
 							m_actions.Push(new AddCurveAction(m_touchedCurve, this));
+							m_actions.Push(new AttachCurveAction(m_touchedCurve, closestCurve, connectionIdx, 0, new Vector(0, 0), this));
                             m_pathsToCurves[m_curvesToPaths[closestCurve]].AddLast(m_touchedCurve);
                             m_curvesToPaths[m_touchedCurve] = m_curvesToPaths[closestCurve];
-                            if (headIsCLoserThanTail)
-                                m_touchedPointIdx = 0;
-                            else
-                                m_touchedPointIdx = 3;
                         }
                         else
                         {
@@ -205,17 +203,18 @@ namespace FontEditor.Controller
 
 				if (closestDistToHead < closestDistToTail && closestCurveToHead != null)
                 {
+					m_actions.Push(new MoveAction(-1, lastCurve, m_startMousePos, v, this));
 					attachCurves(lastCurve, closestCurveToHead, 0, closestOtherIdxToHead);
 					m_touchedPath = null;
+					m_startMousePos = v;
                 }
 				else if (closestDistToTail < closestDistToHead && closestCurveToTail != null)
-                {
+				{
+					m_actions.Push(new MoveAction(-1, lastCurve, m_startMousePos, v, this));
 					attachCurves(lastCurve, closestCurveToTail, 3, closestOtherIdxToTail);
 					m_touchedPath = null;
-                }
-
-				if (m_touchedPath == null)
-					m_actions.Push(new MoveAction(-1, lastCurve, m_startMousePos, v, this));
+					m_startMousePos = v;
+				}
 
 				
             }
@@ -245,6 +244,7 @@ namespace FontEditor.Controller
                     findClosestCurve(m_touchedCurve, m_touchedPointIdx, out closestDist, out closestCurve, out closestOtherIdx);
                     if (closestDist < m_touchRadius && closestCurve != null)
                     {
+						m_actions.Push(new MoveAction(m_touchedPointIdx, m_touchedCurve, m_startMousePos, v, this));
                         attachCurves(m_touchedCurve, closestCurve, m_touchedPointIdx, closestOtherIdx);
                         if (m_touchedPointIdx == 0)
                         {
@@ -252,6 +252,7 @@ namespace FontEditor.Controller
                             if (closestOtherIdx == 3)
                                 m_touchedCurve = closestCurve;
                         }
+						m_startMousePos = v;
                     }
 
                 }
@@ -326,8 +327,9 @@ namespace FontEditor.Controller
 				m_actions.Push(new MoveAction(-1, m_pathsToCurves[m_touchedPath].First.Value, m_startMousePos, (Vector)p, this));
 				m_touchedPath = null;
 			}
-			else
+			else if (null != m_touchedCurve)
 			{
+			
 				m_actions.Push(new MoveAction(m_touchedPointIdx, m_touchedCurve, m_startMousePos, (Vector)p, this));
 			}
 			m_isMousePressed = false;
@@ -420,6 +422,21 @@ namespace FontEditor.Controller
 		public bool hasEmptyActions()
 		{
 			return (m_actions.Count == 0);
+		}
+
+		public void clear()
+		{
+			foreach (Path p in m_pathsToCurves.Keys)
+				m_canvas.Children.Remove(p);
+			foreach (DrawableCurve dc in m_curves)
+				dc.removeFromCanvas();
+			m_pathGeometries.Clear();
+			m_curvesToPaths.Clear();
+			m_pathsToCurves.Clear();
+			m_pathGeometries.Clear();
+			m_actions.Clear();
+			m_firstPrevoiusAction.Clear();
+			m_curves.Clear();
 		}
     }
 }

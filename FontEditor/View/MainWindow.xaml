@@ -89,7 +89,7 @@
                             <ColumnDefinition Width="7*"/>
                         </Grid.ColumnDefinitions>
                         <Button x:Name="Undo"  Content="Undo" Width="75" Height="25" Click="Undo_Click" IsEnabled="False" Margin="0,14,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" RenderTransformOrigin="0.493,-0.85" Grid.Column="1"/>
-                        <Button Content="Clear" Grid.Column="1" Margin="0,44,9,41"/>
+                        <Button Content="Clear" Grid.Column="1" Margin="0,44,9,41" Click="Clear_Click"/>
                         <Button x:Name="SaveLetterButton" IsEnabled="False" Content="Save letter" Click="SaveLetterButton_OnClick" Margin="0,74,9,10" Grid.Column="1"/>
                         <Label x:Name="LetterLabel" IsEnabled="False" Content="Letter"  Margin="0,26,39,56"/>
                         <TextBox x:Name="LetterTextBox" IsEnabled="False" TextWrapping="Wrap" Margin="51,30,16,56"/>
