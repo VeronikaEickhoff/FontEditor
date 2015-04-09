@@ -16,7 +16,7 @@ using Path = System.Windows.Shapes.Path;
 
 namespace FontEditor.Controller
 {
-    class SegmentController
+    partial class SegmentController
     {
         public enum ControllerState
         {
@@ -24,8 +24,7 @@ namespace FontEditor.Controller
             MOVE
         }
         private Canvas m_canvas;
-        private List<PathGeometry> m_pathGeometries;
-        private List<Path> m_paths;
+		private Dictionary<Path, PathGeometry> m_pathGeometries;
         private LinkedList<DrawableCurve> m_curves;
         private Dictionary<Path, LinkedList<DrawableCurve>> m_pathsToCurves;
         private Dictionary<DrawableCurve, Path> m_curvesToPaths;
@@ -38,6 +37,10 @@ namespace FontEditor.Controller
         private bool m_isMousePressed = false;
 
         private Path m_lastPath;
+		private Stack<SimpleAction> m_actions;
+		private Stack<int> m_firstPrevoiusAction;
+
+		private Vector m_startMousePos; 
 
         public void setTouchedCurve(DrawableCurve c, int touchedPoint)
         {
@@ -48,23 +51,25 @@ namespace FontEditor.Controller
         public SegmentController(Canvas canvas)
         {
             m_canvas = canvas;
-            m_pathGeometries = new List<PathGeometry>();
-            m_paths = new List<Path>();
+			m_pathGeometries = new Dictionary<Path, PathGeometry>();
 
             m_curves = new LinkedList<DrawableCurve>();
             m_pathsToCurves = new Dictionary<Path, LinkedList<DrawableCurve>>();
             m_curvesToPaths = new Dictionary<DrawableCurve, Path>();
+			m_actions = new Stack<SimpleAction>();
+			m_firstPrevoiusAction = new Stack<int>();
         }
 
         public void onMouseDown(Point p)
         {
             Vector v = (Vector)p;
             m_isMousePressed = true;
+			m_startMousePos = v;
             switch (m_state)
             {
                 case ControllerState.ADD:
                     {
-                        //SaveStateBeforeAddingCurve();
+						m_firstPrevoiusAction.Push(m_actions.Count);
 
                         DrawableCurve closestCurve = null;
                         double closestDist = 1e305;
@@ -90,8 +95,8 @@ namespace FontEditor.Controller
                         }
                         if (closestDist < m_touchRadius && closestCurve != null)
                         {
-                            // TODO think how to do undo here!
                             m_touchedCurve = new DrawableCurve(new Curve(v, v), closestCurve, m_canvas, this, headIsCLoserThanTail);
+							m_actions.Push(new AddCurveAction(m_touchedCurve, this));
                             m_pathsToCurves[m_curvesToPaths[closestCurve]].AddLast(m_touchedCurve);
                             m_curvesToPaths[m_touchedCurve] = m_curvesToPaths[closestCurve];
                             if (headIsCLoserThanTail)
@@ -103,29 +108,28 @@ namespace FontEditor.Controller
                         {
                             PathGeometry pg = new PathGeometry();
                             pg.FillRule = FillRule.EvenOdd;
-                            m_pathGeometries.Add(pg);
+                            
 
                             System.Windows.Shapes.Path path = new Path();
                             path.Stroke = Brushes.Black;
-                            path.Data = m_pathGeometries.Last();
+							path.Data = pg;
                             path.StrokeThickness = 2;
                             path.MouseDown += onCurveMouseDown;
                             path.MouseEnter += onMouseOverPath;
                             path.MouseLeave += onMouseLeftPath;
 
-                            m_paths.Add(path);
+							m_pathGeometries.Add(path, pg);
                             m_pathsToCurves.Add(path, new LinkedList<DrawableCurve>());
                             m_canvas.Children.Add(path); // Here
-                            m_touchedCurve = new DrawableCurve(new Curve(v, v), pg, m_canvas, this); // Here curve adds itself to canvas -> Bootstrapping
+							PathFigure pf = new PathFigure();
+							pg.Figures.Add(pf);
+                            m_touchedCurve = new DrawableCurve(new Curve(v, v), pf, m_canvas, this); // Here curve adds itself to canvas -> Bootstrapping
 
                             m_pathsToCurves[path].AddLast(m_touchedCurve);
                             m_curvesToPaths[m_touchedCurve] = path;
 
-                            //m_lastPath = path; // For Undo
-                            //m_lastTouchedPointIdx = m_touchedPointIdx;
-
                             m_touchedPointIdx = 3;
-
+							m_actions.Push(new AddCurveAction(m_touchedCurve, this));
 
                         }
                         m_curves.AddLast(m_touchedCurve);
@@ -154,6 +158,7 @@ namespace FontEditor.Controller
                         }
                         if (closestDist < m_touchRadius && closestCurve != null)
                         {
+							m_firstPrevoiusAction.Push(m_actions.Count);
                             m_touchedCurve = closestCurve;
                             m_touchedPointIdx = closestIdx;
                             if (m_touchedPointIdx == 0 && m_touchedCurve.hasPrev())
@@ -167,64 +172,6 @@ namespace FontEditor.Controller
             }
         }
 
-        // Clone dictionary
-        private static Dictionary<TKey, TValue> CloneDictionary<TKey, TValue>
-           (Dictionary<TKey, TValue> original) where TKey : ICloneable where TValue : ICloneable
-        {
-            Dictionary<TKey, TValue> ret = new Dictionary<TKey, TValue>(original.Count,
-                                                                    original.Comparer);
-            foreach (KeyValuePair<TKey, TValue> entry in original)
-            {
-                ret.Add((TKey) entry.Key.Clone(), (TValue)entry.Value.Clone());
-            }
-            return ret;
-        }
-        
-        // Clone list
-        public static IList<T> CloneList<T>(IList<T> listToClone) where T : ICloneable
-        {
-            return listToClone.Select(item => (T)item.Clone()).ToList();
-        }
-
-        // Clone canvas
-        public static class WPFObjectCopier
-        {
-            public static T Clone<T>(T source)
-            {
-                string objXaml = XamlWriter.Save(source);
-                StringReader stringReader = new StringReader(objXaml);
-                XmlReader xmlReader = XmlReader.Create(stringReader);
-                T t = (T)XamlReader.Load(xmlReader);
-                return t;
-            }
-        }
-
-        // 100500 clones of 100500 not clonable data structures!1!!1!!!1!
-        private List<Path> m_pathsCopy;
-        private List<PathGeometry> m_pathGeometriesCopy;
-        private Dictionary<Path, LinkedList<DrawableCurve>> m_pathsToCurvesCopy;
-        private Dictionary<DrawableCurve, Path> m_curvesToPathsCopy;
-        private Canvas m_canvasCopy;
-        private int m_touchedPointIdxCopy;
-
-        // Clone everything!
-        private void SaveStateBeforeAddingCurve()
-        {
-           /* Path[] pathsCopyArray = { };
-            m_paths.CopyTo(pathsCopyArray);
-            m_pathsCopy = pathsCopyArray.ToList();
-
-            PathGeometry[] pathGeometriesCopyArray = { };
-            m_pathGeometries.CopyTo(pathGeometriesCopyArray);
-            m_pathGeometriesCopy = pathGeometriesCopyArray.ToList();
-
-            m_pathsToCurvesCopy = CloneDictionary(m_pathsToCurves);
-            m_curvesToPathsCopy = CloneDictionary(m_curvesToPaths);
-
-            m_canvasCopy = WPFObjectCopier.Clone(m_canvas);
-
-            m_touchedPointIdxCopy = m_touchedPointIdx;*/
-        }
 
         public void onMouseMove(Point p)
         {
@@ -253,30 +200,24 @@ namespace FontEditor.Controller
                 if (!lastCurve.hasNext())
                     findClosestCurve(lastCurve, 3, out closestDistToTail, out closestCurveToTail, out closestOtherIdxToTail);
 
-                if (closestDistToHead < closestDistToTail && closestDistToHead < m_touchRadius && closestCurveToHead != null)
+				if (Math.Min(closestDistToHead, closestDistToTail) > m_touchRadius)
+					goto EXIT;
+
+				if (closestDistToHead < closestDistToTail && closestCurveToHead != null)
                 {
-                    firstCurve.attach(closestCurveToHead, 0, closestOtherIdxToHead);
-                    newPath = m_curvesToPaths[closestCurveToHead];
+					attachCurves(lastCurve, closestCurveToHead, 0, closestOtherIdxToHead);
+					m_touchedPath = null;
                 }
-                else if (closestDistToTail < closestDistToHead && closestDistToTail < m_touchRadius && closestCurveToTail != null)
+				else if (closestDistToTail < closestDistToHead && closestCurveToTail != null)
                 {
-                    lastCurve.attach(closestCurveToTail, 3, closestOtherIdxToTail);
-                    newPath = m_curvesToPaths[closestCurveToTail];
+					attachCurves(lastCurve, closestCurveToTail, 3, closestOtherIdxToTail);
+					m_touchedPath = null;
                 }
 
+				if (m_touchedPath == null)
+					m_actions.Push(new MoveAction(-1, lastCurve, m_startMousePos, v, this));
 
-                if (newPath != null && newPath != m_touchedPath)
-                {
-                    foreach (DrawableCurve dc in m_pathsToCurves[m_touchedPath])
-                    {
-                        m_pathsToCurves[newPath].AddLast(dc);
-                        m_curvesToPaths[dc] = newPath;
-                    }
-                    m_paths.Remove(m_touchedPath);
-                    m_pathsToCurves.Remove(m_touchedPath);
-                    m_canvas.Children.Remove(m_touchedPath); // Here
-                    m_touchedPath = null;
-                }
+				
             }
             else
             {
@@ -326,7 +267,9 @@ namespace FontEditor.Controller
 
         private void attachCurves(DrawableCurve child, DrawableCurve parent, int childIdx, int parentIdx)
         {
-            child.attach(parent, childIdx, parentIdx);
+			Vector dv;
+            child.attach(parent, childIdx, parentIdx, out dv);
+			m_actions.Push(new AttachCurveAction(child, parent, parentIdx, childIdx, dv, this));
             Path newPath = m_curvesToPaths[parent];
 
             Path currentPath = m_curvesToPaths[child];
@@ -338,9 +281,9 @@ namespace FontEditor.Controller
                     m_pathsToCurves[newPath].AddLast(dc);
                     m_curvesToPaths[dc] = newPath;
                 }
-                m_paths.Remove(currentPath);
                 m_pathsToCurves.Remove(currentPath);
                 m_canvas.Children.Remove(currentPath); // Here
+				m_pathGeometries.Remove(currentPath);
             }
         }
 
@@ -377,15 +320,19 @@ namespace FontEditor.Controller
 
         public void onMouseUp(Point p)
         {
-            m_isMousePressed = false;
-            m_touchedCurve = null;
-            m_touchedPointIdx = -2;
-
-            if (null != m_touchedPath)
-            {
-                m_touchedPath.Stroke = new SolidColorBrush(Colors.Black);
-                m_touchedPath = null;
-            }
+			if (null != m_touchedPath)
+			{
+				m_touchedPath.Stroke = new SolidColorBrush(Colors.Black);
+				m_actions.Push(new MoveAction(-1, m_pathsToCurves[m_touchedPath].First.Value, m_startMousePos, (Vector)p, this));
+				m_touchedPath = null;
+			}
+			else
+			{
+				m_actions.Push(new MoveAction(m_touchedPointIdx, m_touchedCurve, m_startMousePos, (Vector)p, this));
+			}
+			m_isMousePressed = false;
+			m_touchedCurve = null;
+			m_touchedPointIdx = -2;
         }
 
         private void onCurveMouseDown(object sender, MouseButtonEventArgs e)
@@ -424,7 +371,7 @@ namespace FontEditor.Controller
         public void showPreview(Grid previewCanvas)
         {
             // Combine all created PathGeometries into one path and show it in the preview canvas
-            var geometryGroup = new GeometryGroup { Children = new GeometryCollection(m_pathGeometries) };
+            var geometryGroup = new GeometryGroup { Children = new GeometryCollection(m_pathGeometries.Values) };
             var combinedPath = new Path
             {
                 Data = geometryGroup,
@@ -436,21 +383,29 @@ namespace FontEditor.Controller
             previewCanvas.Children.Add(combinedPath);
         }
 
-        public void undo()
-        {
-            /* m_paths.Remove()
-             m_pathsToCurves.Remove(m_lastPath);
-             m_canvas.Children.Remove(m_lastPath);
-             m_pathGeometries.RemoveAt(m_pathGeometries.Count - 1);
-             m_curvesToPaths.Remove(m_touchedCurve);
-             m_touchedPointIdx = m_lastTouchedPointIdx;
-             m_curves.Remove(m_touchedCurve);*/
-        }
+		public void undo()
+		{
+			int prevActionidx = m_firstPrevoiusAction.Pop();
+			int undoActionsNumber = m_actions.Count - prevActionidx;
+			for (int i = 0; i < undoActionsNumber; i++)
+			{
+				if (m_actions.Count != 0)
+				{
+					SimpleAction act = m_actions.Pop();
+					act.undo();
+				}
+			}
+		}
+
+		public void redo()
+		{ 
+		
+		}
 
         // Letter editing is completely done - before saving
         public Path CreateLetterPath()
         {
-            var geometryGroup = new GeometryGroup { Children = new GeometryCollection(m_pathGeometries) };
+            var geometryGroup = new GeometryGroup { Children = new GeometryCollection(m_pathGeometries.Values) };
             var combinedPath = new Path
             {
                 Data = geometryGroup,
@@ -461,5 +416,10 @@ namespace FontEditor.Controller
             };
             return combinedPath;
         }
+
+		public bool hasEmptyActions()
+		{
+			return (m_actions.Count == 0);
+		}
     }
 }

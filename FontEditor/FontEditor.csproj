@@ -64,6 +64,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Controller\SimpleAction.cs" />
     <Compile Include="Controller\SegmentController.cs" />
     <Compile Include="Letter.cs" />
     <Compile Include="Model\Font.cs" />

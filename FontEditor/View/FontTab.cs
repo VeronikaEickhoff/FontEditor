@@ -41,14 +41,19 @@ namespace FontEditor.View
 
         private void fontCanvas_MouseLeftButtonDown(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            m_startMouseClick = e.GetPosition(fontCanvas);
-            m_segmentController.onMouseDown(m_startMouseClick);
+			if (System.Windows.Input.Mouse.DirectlyOver == fontCanvas) 
+			{
+				m_startMouseClick = e.GetPosition(fontCanvas);
+				m_segmentController.onMouseDown(m_startMouseClick);
+			}
         }
 
         private void fontCanvas_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             Point endPoint = e.GetPosition(fontCanvas);
             m_segmentController.onMouseUp(endPoint);
+			Undo.IsEnabled = !m_segmentController.hasEmptyActions();
+
         }
 
         private void fontCanvas_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
@@ -124,6 +129,7 @@ namespace FontEditor.View
         private void Undo_Click(object sender, RoutedEventArgs e)
         {
             m_segmentController.undo();
+			Undo.IsEnabled = !m_segmentController.hasEmptyActions();
         }
 
         private void Done_Click(object sender, RoutedEventArgs e)
