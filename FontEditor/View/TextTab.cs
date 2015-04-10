@@ -283,7 +283,7 @@ namespace FontEditor.View
             Path letterPath = m_currentFont.FindLetter(letterName);
             if (letterPath == null) return;
 
-            m_text.AddLast(new Letter(letterName, letterPath));
+            m_text.AddLast(new Letter(letterName, letterPath, null));
 
             var p = ClonePath(letterPath);
             Grid letterGrid = new Grid {Width = TextEditorWrapPanel.Width/10, Height = TextEditorWrapPanel.Height/10};

@@ -21,6 +21,26 @@ namespace FontEditor.Model
             m_points[1] = (Point)((1 - t1) * begin + t1 * end + new Vector(10,1));
             m_points[2] = (Point)((1 - t2) * begin + t2 * end + new Vector(-10, 1));
         }
+
+		private Curve(Curve rhs)
+		{
+			m_points = new Point[4];
+			for (int i = 0; i < 4; i++)
+			{
+				m_points[i] = new Point(rhs.m_points[i].X, rhs.m_points[i].Y);
+			}
+		}
+
+		public Curve(Point[] p, float a, float b)
+		{
+			m_points = new Point[4];
+			for (int i = 0; i < 4; i++)
+			{
+				m_points[i] = new Point(p[i].X, p[i].Y);
+			}
+			t1 = a;
+			t2 = b;
+		}
         
         public void translate(int idx, Vector dv)
         {
@@ -75,5 +95,19 @@ namespace FontEditor.Model
             swapPoints(0, 3);
             swapPoints(1, 2);
         }
+
+		public Curve getCopy() 
+		{
+			return (new Curve(this));
+		}
+		public override string ToString()
+		{
+			string s = "";
+			for (int i = 0; i < 4; i++)
+				s += m_points[i].ToString() + "*";
+			s += t1.ToString() + "*" + t2.ToString();
+
+			return s;
+		}
     }
 }

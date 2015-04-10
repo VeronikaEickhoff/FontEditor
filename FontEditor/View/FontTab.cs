@@ -21,7 +21,7 @@ namespace FontEditor.View
     {
         private Point m_startMouseClick;
         private SegmentController m_segmentController;
-        private Font m_font;
+        private Font m_font = null;
 
         private void initFontTab()
 		{
@@ -157,8 +157,11 @@ namespace FontEditor.View
         private void SaveLetterButton_OnClick(object sender, RoutedEventArgs e)
         {
             var letterPath = m_segmentController.CreateLetterPath();
-            var letter = new Letter(Char.ToUpper(LetterTextBox.Text[0]), letterPath);
-            m_font.AddLetterToFont(letter);
+			if (LetterTextBox.Text.Length > 0)
+			{
+				var letter = new Letter(Char.ToUpper(LetterTextBox.Text[0]), letterPath, m_segmentController.getCurveList());
+				m_font.AddLetterToFont(letter);
+			}
         }
 
 
@@ -170,5 +173,15 @@ namespace FontEditor.View
 		}
 
 
+		private void LetterTextBox_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			if (LetterTextBox.Text != "")
+			{
+				if (m_font != null)
+				{
+					m_segmentController.showLetter(m_font.getLetter(LetterTextBox.Text[0]));
+				}
+			}
+		}
     }
 }

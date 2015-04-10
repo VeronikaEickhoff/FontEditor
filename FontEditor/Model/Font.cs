@@ -59,6 +59,18 @@ namespace FontEditor.Model
 			return m_letters[m_letterNames.IndexOf(name)].LetterPath;
         }
 
+		public bool hasLetter(char l)
+		{ 
+			return (m_letterNames.Contains(Char.ToUpper(l)));
+		}
+
+		public Letter getLetter(char l)
+		{
+			if (!hasLetter(l))
+				return null;
+			return m_letters[m_letterNames.IndexOf(Char.ToUpper(l))];
+		}
+
         public void SaveFont(string filename)
         {
             using (var sw = File.CreateText(filename))

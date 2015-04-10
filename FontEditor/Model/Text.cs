@@ -48,7 +48,7 @@ namespace FontEditor.Model
                 var letterPath = m_font.FindLetter(character);
                 if (letterPath == null) continue;
 
-                AddLast(new Letter(character, letterPath));
+                AddLast(new Letter(character, letterPath, null));
             }
         }
 

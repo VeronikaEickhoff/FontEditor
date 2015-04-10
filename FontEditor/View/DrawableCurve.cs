@@ -81,6 +81,11 @@ namespace FontEditor.View
 			m_isStartCurve = true;
         }
 
+		public Curve getMyCurve()
+		{
+			return m_curve.getCopy();
+		}
+
         private Ellipse CreateEllipse(int i)
         {
             // First check if the point or a close point already exists, if yes, don't create a new one - two curves will share one point

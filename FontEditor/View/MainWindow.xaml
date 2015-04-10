@@ -92,7 +92,7 @@
                         <Button Content="Clear" Margin="0,57,9,28" Click="Clear_Click" Grid.Column="1"/>
                         <Button x:Name="SaveLetterButton" IsEnabled="False" Content="Save letter" Click="SaveLetterButton_OnClick" Margin="51,97,54,-13" RenderTransformOrigin="-0.185,1.505" Grid.ColumnSpan="2"/>
                         <Label x:Name="LetterLabel" IsEnabled="True" Content="Letter"  Margin="0,26,39,56"/>
-                        <TextBox x:Name="LetterTextBox" IsEnabled="False" TextWrapping="Wrap" Margin="51,30,16,56"/>
+                        <TextBox x:Name="LetterTextBox" IsEnabled="False" TextWrapping="Wrap" Margin="51,30,16,56" TextChanged="LetterTextBox_TextChanged"/>
                         <StackPanel Margin="11,61,22,13">
                             <RadioButton Content="Draw" Checked="RadioButton_Checked" IsChecked="True"/>
                             <RadioButton Content="Move" Checked="RadioButton_Checked"/>

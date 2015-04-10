@@ -43,6 +43,7 @@ namespace FontEditor.Controller
 		private Vector m_startMousePos;
 		private Grid m_previewGrid;
         private Grid m_previewCanvas;
+		private char curLetter = (char)0; 
 
         public void setTouchedCurve(DrawableCurve c, int touchedPoint)
         {
@@ -445,6 +446,31 @@ namespace FontEditor.Controller
 			m_curves.Clear();
             if (m_previewCanvas != null)
                 m_previewCanvas.Children.Clear();
+		}
+
+		public LinkedList<LinkedList<Curve>> getCurveList()
+		{
+			LinkedList<LinkedList<Curve>> ret = new LinkedList<LinkedList<Curve>>();
+			foreach (Path p in m_pathsToCurves.Keys)
+			{
+				LinkedList<Curve> temp = new LinkedList<Curve>();
+				foreach (DrawableCurve dc in m_pathsToCurves[p])
+				{
+					temp.AddLast(dc.getMyCurve());
+				}
+				ret.AddLast(temp);
+			}
+			return ret;
+		}
+
+		public void showLetter(Letter letter)
+		{
+			if (curLetter == letter.Name)
+				return;
+
+
+
+			curLetter = letter.Name;
 		}
     }
 }
