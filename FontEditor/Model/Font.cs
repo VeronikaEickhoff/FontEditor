@@ -12,22 +12,24 @@ namespace FontEditor.Model
     class Font
     {
         private string m_fontFileName;
-        private Dictionary<char, Path> m_letters;
+        private List<Letter> m_letters;
+		private List<char> m_letterNames;
 
-        // Load existing or just created font
         public Font(string fontFileName)
         {
             m_fontFileName = fontFileName;
-            
-            m_letters = new Dictionary<char, Path>();
-            
+
+			m_letters = new List<Letter>();
+			m_letterNames = new List<char>();
+
             using (var sr = File.OpenText(m_fontFileName))
             {
                 var s = "";
                 while ((s = sr.ReadLine()) != "-text-" && s != null)
                 {
                     var letter = new Letter(s);
-                    m_letters.Add(letter.Name, letter.LetterPath);
+					m_letters.Add(letter);
+					m_letterNames.Add(letter.Name);
                 }
             }
         }
@@ -35,10 +37,11 @@ namespace FontEditor.Model
         // Create letter and append it to the end of font file
         public void AddLetterToFont(Letter letter)
         {
-            if (m_letters.ContainsKey(Char.ToUpper(letter.Name)))
+            if (m_letterNames.Contains(Char.ToUpper(letter.Name)))
                 return;
 
-            m_letters.Add(letter.Name, letter.LetterPath);
+            m_letters.Add(letter);
+			m_letterNames.Add(Char.ToUpper(letter.Name));
 
             var serializedLetter = letter.Serialize();
 
@@ -50,18 +53,18 @@ namespace FontEditor.Model
 
         public Path FindLetter(char c)
         {
-            if (!m_letters.ContainsKey(Char.ToUpper(c)))
+			char name = Char.ToUpper(c);
+            if (!m_letterNames.Contains(name))
                 return null;
-            return m_letters[Char.ToUpper(c)];
+			return m_letters[m_letterNames.IndexOf(name)].LetterPath;
         }
 
         public void SaveFont(string filename)
         {
             using (var sw = File.CreateText(filename))
             {
-                foreach (var letterElement in m_letters)
+                foreach (var letter in m_letters)
                 {
-                    var letter = new Letter(letterElement.Key, letterElement.Value);
                     var serializedLetter = letter.Serialize();
 
                     sw.WriteLine(serializedLetter);

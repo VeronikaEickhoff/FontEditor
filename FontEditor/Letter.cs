@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using System.Windows.Markup;
 using System.Xml;
 using Path = System.Windows.Shapes.Path;
+using System.Runtime.Serialization;
+using FontEditor.Model;
 
 namespace FontEditor
 {
@@ -15,6 +17,7 @@ namespace FontEditor
     {
         public char Name;
         public Path LetterPath;
+		public LinkedList<LinkedList<Curve>> m_curves;
 
         // (letter from font editor)
         public Letter(char name, Path letterPath)
