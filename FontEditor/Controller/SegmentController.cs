@@ -465,6 +465,8 @@ namespace FontEditor.Controller
 
 		public void showLetter(Letter letter)
 		{
+			if (letter == null)
+				return;
 			if (curLetter == letter.Name)
 				return;
 
