@@ -28,7 +28,7 @@ namespace FontEditor.Controller
         private LinkedList<DrawableCurve> m_curves;
         private Dictionary<Path, LinkedList<DrawableCurve>> m_pathsToCurves;
         private Dictionary<DrawableCurve, Path> m_curvesToPaths;
-        private double m_touchRadius = 20;
+        private double m_touchRadius = 10;
         public ControllerState m_state = ControllerState.ADD;
         private DrawableCurve m_touchedCurve = null;
         private Path m_touchedPath = null;
@@ -108,29 +108,12 @@ namespace FontEditor.Controller
                         }
                         else
                         {
-                            PathGeometry pg = new PathGeometry();
-                            pg.FillRule = FillRule.EvenOdd;
-                            
-
-                            System.Windows.Shapes.Path path = new Path();
-                            path.Stroke = Brushes.Black;
-							path.Data = pg;
-                            path.StrokeThickness = 2;
-                            path.MouseDown += onCurveMouseDown;
-                            path.MouseEnter += onMouseOverPath;
-                            path.MouseLeave += onMouseLeftPath;
-
-							m_pathGeometries.Add(path, pg);
-                            m_pathsToCurves.Add(path, new LinkedList<DrawableCurve>());
-                            m_canvas.Children.Add(path); // Here
 							PathFigure pf = new PathFigure();
-							pg.Figures.Add(pf);
-                            m_touchedCurve = new DrawableCurve(new Curve(v, v), pf, m_canvas, this); // Here curve adds itself to canvas -> Bootstrapping
+							m_touchedCurve = new DrawableCurve(new Curve(v, v), pf, m_canvas, this); // Here curve adds itself to canvas -> Bootstrapping
 
-                            m_pathsToCurves[path].AddLast(m_touchedCurve);
-                            m_curvesToPaths[m_touchedCurve] = path;
+							addNewCurve(m_touchedCurve);
 
-                            m_touchedPointIdx = 3;
+							m_touchedPointIdx = 3;
 							m_actions.Push(new AddCurveAction(m_touchedCurve, this));
 
                         }
@@ -290,7 +273,7 @@ namespace FontEditor.Controller
                 m_canvas.Children.Remove(currentPath); // Here
 				m_pathGeometries.Remove(currentPath);
             }
-
+			updatePreview(m_previewGrid);
         }
 
         private void findClosestCurve(DrawableCurve testedCurve, int testedCurveIdx, out double closestDist, out DrawableCurve closestCurve, out int closestOtherIdx)
@@ -324,6 +307,29 @@ namespace FontEditor.Controller
             }
         }
 
+		private void addNewCurve(DrawableCurve newCurve)
+		{
+			PathGeometry pg = new PathGeometry();
+			pg.FillRule = FillRule.EvenOdd;
+
+			System.Windows.Shapes.Path path = new Path();
+			path.Stroke = Brushes.Black;
+			path.Data = pg;
+			path.StrokeThickness = 2;
+			path.MouseDown += onCurveMouseDown;
+			path.MouseEnter += onMouseOverPath;
+			path.MouseLeave += onMouseLeftPath;
+
+			m_pathGeometries.Add(path, pg);
+			m_pathsToCurves.Add(path, new LinkedList<DrawableCurve>());
+			m_canvas.Children.Add(path); // Here
+
+			pg.Figures.Add(newCurve.getMyFigure());
+
+			m_pathsToCurves[path].AddLast(newCurve);
+			m_curvesToPaths[newCurve] = path;
+		}
+
         public void onMouseUp(Point p)
         {
 			if (null != m_touchedPath)
@@ -344,6 +350,9 @@ namespace FontEditor.Controller
 
         private void onCurveMouseDown(object sender, MouseButtonEventArgs e)
         {
+			if (m_state == ControllerState.ADD)
+				return;
+
             var path = (Path)sender;
 
             path.Stroke = new SolidColorBrush(Colors.DeepPink);
@@ -353,6 +362,8 @@ namespace FontEditor.Controller
 
         private void onMouseOverPath(object sender, MouseEventArgs e)
         {
+			if (m_state == ControllerState.ADD)
+				return;
             if (!m_isMousePressed)
             {
                 Path path = (Path)sender;
@@ -362,6 +373,8 @@ namespace FontEditor.Controller
 
         private void onMouseLeftPath(object sender, MouseEventArgs e)
         {
+			if (m_state == ControllerState.ADD)
+				return;
             if (!m_isMousePressed)
             {
                 Path path = (Path)sender;
@@ -448,15 +461,15 @@ namespace FontEditor.Controller
                 m_previewCanvas.Children.Clear();
 		}
 
-		public LinkedList<LinkedList<Curve>> getCurveList()
+		public LinkedList<LinkedList<DrawableCurve>> getCurveList()
 		{
-			LinkedList<LinkedList<Curve>> ret = new LinkedList<LinkedList<Curve>>();
+			LinkedList<LinkedList<DrawableCurve>> ret = new LinkedList<LinkedList<DrawableCurve>>();
 			foreach (Path p in m_pathsToCurves.Keys)
 			{
-				LinkedList<Curve> temp = new LinkedList<Curve>();
+				LinkedList<DrawableCurve> temp = new LinkedList<DrawableCurve>();
 				foreach (DrawableCurve dc in m_pathsToCurves[p])
 				{
-					temp.AddLast(dc.getMyCurve());
+					temp.AddLast(dc);
 				}
 				ret.AddLast(temp);
 			}
@@ -470,8 +483,39 @@ namespace FontEditor.Controller
 			if (curLetter == letter.Name)
 				return;
 
+			clear();
+			LinkedListNode<int> startIndex = letter.m_startIndexes.First;
+			LinkedListNode<bool> isClosed = letter.m_pathIsClosed.First;
+			foreach (LinkedList<Curve> curves in letter.m_curves)
+			{
+				PathFigure pf = new PathFigure();
+				LinkedListNode<Curve> node = curves.First;
+				DrawableCurve prevCurve = new DrawableCurve(node.Value, pf, m_canvas, this); // Here curve adds itself to canvas -> Bootstrapping
+				if (startIndex.Value == 0)
+					prevCurve.setAsStart();
+
+				addNewCurve(prevCurve);
+				m_curves.AddLast(prevCurve);
+
+				DrawableCurve last = prevCurve;
+				for (int i = 1; i < curves.Count; i++)
+				{
+					node = node.Next;
+					last = new DrawableCurve(node.Value, prevCurve, m_canvas, this, false);
+					m_pathsToCurves[m_curvesToPaths[prevCurve]].AddLast(last);
+					m_curvesToPaths[last] = m_curvesToPaths[prevCurve];
+					prevCurve = last;
+					if (startIndex.Value == i)
+						prevCurve.setAsStart();
+					m_curves.AddLast(last);
+				}
 
 
+				startIndex = startIndex.Next;
+			}
+
+			
+			updatePreview(m_previewGrid);
 			curLetter = letter.Name;
 		}
     }

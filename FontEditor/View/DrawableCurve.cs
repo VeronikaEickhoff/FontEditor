@@ -50,6 +50,7 @@ namespace FontEditor.View
         private SegmentController m_controller;
         private bool m_pathIsClosed = false;
 		private bool m_isStartCurve = false;
+		private Line[] m_middleLines = null;
 
         public DrawableCurve(Curve curve, PathFigure pathFigure, Canvas myCanvas, SegmentController controller)
         {
@@ -62,8 +63,18 @@ namespace FontEditor.View
             m_figure.IsClosed = false;
 
             m_segment = new BezierSegment(p[1], p[2], p[3], true);
-         
+			
             m_figure.Segments.Add(m_segment);
+			m_middleLines = new Line[2];
+
+			for (int i = 0; i < 2; i++)
+			{
+				m_middleLines[i] = new Line();
+				m_middleLines[i].Stroke = Brushes.LightGray;
+				m_canvas.Children.Add(m_middleLines[i]);
+			}
+
+			recountMiddleLines();
 
 			m_points = new Ellipse[4];
             for (int i = 0; i < 4; i++)
@@ -81,9 +92,35 @@ namespace FontEditor.View
 			m_isStartCurve = true;
         }
 
+		private void recountMiddleLines()
+		{
+			Point[] p = getPoints();
+			m_middleLines[0].X1 = (8.0 / 27 * p[0].X+ 4.0 / 9 * p[1].X + 2.0 / 9 * p[2].X + 1.0 / 27 * p[3].X);
+			m_middleLines[0].Y1 = (8.0 / 27 * p[0].Y + 4.0 / 9 * p[1].Y + 2.0 / 9 * p[2].Y + 1.0 / 27 * p[3].Y);
+			m_middleLines[1].X1 = (1.0 / 27 * p[0].X + 2.0 / 9 * p[1].X + 4.0 / 9 * p[2].X + 8.0 / 27 * p[3].X);
+			m_middleLines[1].Y1 = (1.0 / 27 * p[0].Y + 2.0 / 9 * p[1].Y + 4.0 / 9 * p[2].Y + 8.0 / 27 * p[3].Y);
+
+			for (int i = 0; i < 2; i++)
+			{
+				m_middleLines[i].X2 = p[i + 1].X;
+				m_middleLines[i].Y2 = p[i + 1].Y;
+			}
+		}
+
+
 		public Curve getMyCurve()
 		{
 			return m_curve.getCopy();
+		}
+
+		public bool isStartCurve()
+		{
+			return m_isStartCurve;
+		}
+
+		public bool isPathClosed()
+		{
+			return m_pathIsClosed;
 		}
 
         private Ellipse CreateEllipse(int i)
@@ -172,6 +209,8 @@ namespace FontEditor.View
 				m_points[i] = m_points[3 - i];
 				m_points[3 - i] = tmp;
 			}
+
+			recountMiddleLines();
 		}
 
         public DrawableCurve(Curve curve, DrawableCurve prev, Canvas canvas, SegmentController controller, bool connectToHead)
@@ -192,6 +231,16 @@ namespace FontEditor.View
                 Canvas.SetLeft(el, p[i].X - radiuses[i]);
                 Canvas.SetTop(el, p[i].Y - radiuses[i]);
             }
+
+			m_middleLines = new Line[2];
+			for (int i = 0; i < 2; i++)
+			{
+				m_middleLines[i] = new Line();
+				m_middleLines[i].Stroke = Brushes.LightGray;
+				m_canvas.Children.Add(m_middleLines[i]);
+			}
+
+			recountMiddleLines();
 
 			Vector dv;
             if (!connectToHead)
@@ -237,6 +286,8 @@ namespace FontEditor.View
             {
                 m_figure.StartPoint = p[0];
             }
+
+			recountMiddleLines();
         }
 
 		public PathFigure getMyFigure()
@@ -282,7 +333,7 @@ namespace FontEditor.View
 				if (m_figure.Equals(closestCurve.m_figure))
 				{
 					m_pathIsClosed = true;
-					m_figure.IsFilled = true;
+					m_figure.IsClosed = true;
 					translate(closestIdx, dv);
 				}	
 			}
@@ -511,6 +562,13 @@ namespace FontEditor.View
         {
             return m_curve.getPoints();
         }
+
+		public void setAsStart()
+		{
+			m_isStartCurve = true;
+			if (m_figure != null)
+				m_figure.StartPoint = getPoints()[0];
+		}
 
     }
 }

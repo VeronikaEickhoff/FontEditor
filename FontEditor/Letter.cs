@@ -13,6 +13,8 @@ using FontEditor.Model;
 using System;
 using System.Windows;
 
+using FontEditor.View;
+
 namespace FontEditor
 {
     class Letter
@@ -20,22 +22,35 @@ namespace FontEditor
         public char Name;
         public Path LetterPath;
 		public LinkedList<LinkedList<Curve>> m_curves = null;
+		public LinkedList<bool> m_pathIsClosed = null;
+		public LinkedList<int> m_startIndexes = null;
 
         // (letter from font editor)
-        public Letter(char name, Path letterPath, LinkedList<LinkedList<Curve>> curves)
+        public Letter(char name, Path letterPath, LinkedList<LinkedList<DrawableCurve>> drawableCurves)
         {
             Name = name;
             LetterPath = letterPath;
 
-			if (curves != null)
+			if (drawableCurves != null)
 			{
 				m_curves = new LinkedList<LinkedList<Curve>>();
-				foreach (LinkedList<Curve> lc in curves)
+				m_pathIsClosed = new LinkedList<bool>();
+				m_startIndexes = new LinkedList<int>();
+
+				foreach (LinkedList<DrawableCurve> lc in drawableCurves)
 				{
 					LinkedList<Curve> tmp = new LinkedList<Curve>();
-					foreach (Curve c in lc)
+
+					m_pathIsClosed.AddLast(lc.First.Value.getMyFigure().IsClosed);
+					int i = 0;
+					foreach (DrawableCurve c in lc)
 					{
-						tmp.AddLast(c.getCopy());
+						tmp.AddLast(c.getMyCurve().getCopy());
+						if (c.isStartCurve())
+						{
+							m_startIndexes.AddLast(i);
+						}
+						i++;
 					}
 					m_curves.AddLast(tmp);
 				}
@@ -57,6 +72,9 @@ namespace FontEditor
 			try
 			{
 				m_curves = new LinkedList<LinkedList<Curve>>();
+				m_pathIsClosed = new LinkedList<bool>();
+				m_startIndexes = new LinkedList<int>();
+
 				int n = Convert.ToInt32(tokens[2]);
 				int idx = 3;
 				for (int i = 0; i < n; i++)
@@ -74,6 +92,9 @@ namespace FontEditor
 						Curve c = new Curve(p, t1, t2);
 						tmp.AddLast(c);
 					}
+
+					m_startIndexes.AddLast(Convert.ToInt32(tokens[idx++]));
+					m_pathIsClosed.AddLast(Convert.ToBoolean(tokens[idx++]));
 					m_curves.AddLast(tmp);
 				}
 			}
@@ -87,6 +108,8 @@ namespace FontEditor
         public string Serialize()
         {
             string s = Name.ToString() + "*" + XamlWriter.Save(LetterPath) + "*" + m_curves.Count + "*";
+			LinkedListNode<bool> closedNode = m_pathIsClosed.First;
+			LinkedListNode<int> firstIdxNode = m_startIndexes.First;
 
 			foreach (LinkedList<Curve> lc in m_curves)
 			{
@@ -95,6 +118,11 @@ namespace FontEditor
 				{
 					s += c.ToString() + "*";
 				}
+				s += firstIdxNode.Value.ToString() + "*";
+				s += closedNode.Value.ToString() + "*";
+
+				firstIdxNode = firstIdxNode.Next;
+				closedNode = closedNode.Next;
 			}
 
 			return s;
