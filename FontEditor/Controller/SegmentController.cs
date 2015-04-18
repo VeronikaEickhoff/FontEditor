@@ -45,6 +45,9 @@ namespace FontEditor.Controller
         private Grid m_previewCanvas;
 		private char curLetter = (char)0;
 		private bool m_smooth = false;
+		private long prevClickTime;
+		private const long doubleClickTime = 300; // millis
+
 
         public void setTouchedCurve(DrawableCurve c, int touchedPoint)
         {
@@ -125,7 +128,50 @@ namespace FontEditor.Controller
                     break;
                 case ControllerState.MOVE: // this is processed by onCurveMouseDown()
                     {
-                        DrawableCurve closestCurve = null;
+						long milliseconds = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+						if (milliseconds - prevClickTime < doubleClickTime)
+						{
+							prevClickTime = milliseconds;
+							float globalMinDist = 1e25f;
+							float globalMinT = 0;
+							DrawableCurve closestCurve = null;
+							foreach (DrawableCurve dc in m_curves)
+							{
+								float min_t = 0;
+								float minDist = 0;
+								dc.findClosestPointTo(p, out min_t, out minDist);
+								if (globalMinDist > minDist && min_t >= 0 && min_t <= 1)
+								{
+									globalMinDist = minDist;
+									globalMinT = min_t;
+									closestCurve = dc;
+								}
+							}
+
+							
+							if (globalMinDist < m_touchRadius)
+							{
+								DrawableCurve newCurve1, newCurve2;
+								closestCurve.split(globalMinT, out newCurve1, out newCurve2);
+								m_firstPrevoiusAction.Push(m_actions.Count);
+								m_actions.Push(new SplitAction(newCurve1, newCurve2, closestCurve, this));
+								m_curves.Remove(closestCurve);
+								Path path = m_curvesToPaths[closestCurve];
+								m_curvesToPaths.Remove(closestCurve);
+								m_pathsToCurves[path].Remove(closestCurve);
+
+								m_curvesToPaths.Add(newCurve1, path);
+								m_curvesToPaths.Add(newCurve2, path);
+								m_curves.AddLast(newCurve1);
+								m_curves.AddLast(newCurve2);
+								m_pathsToCurves[path].AddLast(newCurve1);
+								m_pathsToCurves[path].AddLast(newCurve2);
+								break;
+							}
+						}
+						prevClickTime = milliseconds;
+
+                        DrawableCurve closest = null;
                         double closestDist = 1e305;
                         int closestIdx = 0;
                         foreach (DrawableCurve c in m_curves)
@@ -138,14 +184,14 @@ namespace FontEditor.Controller
                                 {
                                     closestDist = dist;
                                     closestIdx = i;
-                                    closestCurve = c;
+									closest = c;
                                 }
                             }
                         }
-                        if (closestDist < m_touchRadius && closestCurve != null)
+						if (closestDist < m_touchRadius && closest != null)
                         {
 							m_firstPrevoiusAction.Push(m_actions.Count);
-                            m_touchedCurve = closestCurve;
+                            m_touchedCurve = closest;
                             m_touchedPointIdx = closestIdx;
                             if (m_touchedPointIdx == 0 && m_touchedCurve.hasPrev())
                             {
@@ -341,7 +387,6 @@ namespace FontEditor.Controller
 			}
 			else if (null != m_touchedCurve)
 			{
-			
 				m_actions.Push(new MoveAction(m_touchedPointIdx, m_touchedCurve, m_startMousePos, (Vector)p, this));
 			}
 			m_isMousePressed = false;
@@ -474,6 +519,7 @@ namespace FontEditor.Controller
 				}
 				ret.AddLast(temp);
 			}
+			
 			return ret;
 		}
 

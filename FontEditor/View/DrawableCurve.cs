@@ -45,12 +45,11 @@ namespace FontEditor.View
 		private static Brush overBrush = Brushes.DodgerBlue;
 		private static Brush touchedBrush = Brushes.LimeGreen;
 
-        private bool m_isTouched = false;
-        private Point m_lastTouchPos;
         private SegmentController m_controller;
         private bool m_pathIsClosed = false;
 		private bool m_isStartCurve = false;
 		private Line[] m_middleLines = null;
+		private static float defaultMiddleLineLength = 50;
 
 		public static bool smooth = false; 
 
@@ -76,7 +75,7 @@ namespace FontEditor.View
                 m_middleLines[i].StrokeDashArray = new DoubleCollection(new List<double>(){10, 5});
 				m_canvas.Children.Add(m_middleLines[i]);
 			}
-
+			
 			recountMiddleLines();
 
 			m_points = new Ellipse[4];
@@ -260,6 +259,11 @@ namespace FontEditor.View
 				m_next.m_prev = null;
 			if (m_prev != null)
 				m_prev.m_next = null;
+			erase();
+		}
+
+		private void erase()
+		{
 			for (int i = 0; i < 4; i++)
 				m_canvas.Children.Remove(m_points[i]);
 			for (int i = 0; i < 2; i++)
@@ -276,12 +280,12 @@ namespace FontEditor.View
             }
 			if (smooth && needSmooth)
 			{
-				if (null != m_prev)
+				if (null != m_prev && idx <= 1)
 				{
 					m_prev.m_curve.smoothifyWithNext(m_curve);
 					m_prev.redraw();
 				}
-				if (null != m_next)
+				if (null != m_next && idx >= 2)
 				{
 					m_next.m_curve.smoothifyWithPrev(m_curve);
 					m_next.redraw();
@@ -592,6 +596,117 @@ namespace FontEditor.View
 			m_isStartCurve = true;
 			if (m_figure != null)
 				m_figure.StartPoint = getPoints()[0];
+		}
+
+		public void findClosestPointTo(Point p, out float min_t, out float minDist)
+		{
+			min_t = 0;
+			minDist = 1e25F;
+
+			Vector[] v = new Vector[4];
+			Vector u = (Vector)p;
+			for (int i = 0; i < 4; i++ )
+				v[i] = (Vector)getPoints()[i];
+
+			for (float t = 0; t < 1; t += 0.001f)
+			{
+				Vector q = Math.Pow((1 - t), 3) * v[0] + 3 * (1 - t) * (1 - t) * t * v[1] + 3 * t * t * (1 - t) * v[2] + t * t * t * v[3];
+				double dist = (q - u).Length;
+				if (dist < minDist)
+				{
+					min_t = (float)t;
+					minDist = (float)dist;
+				}
+			}
+		}
+
+		public void split(float t, out DrawableCurve dc1, out DrawableCurve dc2)
+		{
+			Vector[] v = new Vector[4];
+			Point[] p = getPoints();
+
+			for (int i = 0; i < 4; i++)
+			{
+				v[i] = (Vector)p[i];
+			}
+
+			Vector grad = 3*(v[1] - v[0]) * (1 - t) * (1 - t) + 6*t * (1 - t) * (v[2] - v[1]) + 3*t * t * (v[3] - v[2]);
+			Vector q = Math.Pow((1 - t), 3) * v[0] + 3 * (1 - t) * (1 - t) * t * v[1] + 3 * t * t * (1 - t) * v[2] + t * t * t * v[3];
+
+			grad.Normalize();
+			Vector p2 = q - grad * defaultMiddleLineLength;
+			Vector p1 = q + grad * defaultMiddleLineLength;
+
+			DrawableCurve cur = this;
+			while (!cur.m_isStartCurve)
+				cur = cur.m_prev;
+			
+			Curve c1 = new Curve(p[0], p[1], (Point)p2, (Point)q);
+			Curve c2 = new Curve((Point)q, (Point)p1, p[2], p[3]);
+			dc1 = new DrawableCurve(c1, m_prev, m_canvas, m_controller, false);
+			dc1.m_figure = m_figure;
+			
+			dc2 = new DrawableCurve(c2, dc1, m_canvas, m_controller, false);
+			dc2.m_next = m_next;
+			if (m_next != null)
+				m_next.m_prev = dc2;
+
+			if (cur == this)
+				cur = dc1;
+			if (m_isStartCurve)
+			{
+				dc1.setAsStart();
+			}
+			DrawableCurve start = cur;
+
+			m_figure.Segments.Clear();
+			do
+			{
+				m_figure.Segments.Add(cur.m_segment);
+				cur = cur.m_next;
+			} while (cur != start && cur != null);
+			erase();
+		}
+
+		public void Replace(DrawableCurve dc1, DrawableCurve dc2)
+		{
+			if (dc1.m_prev != null)
+				dc1.m_prev.m_next = this;
+			m_prev = dc1.m_prev;
+
+			if (dc2.m_next != null)
+				dc1.m_next.m_prev = this;
+			m_next = dc2.m_next;
+
+			DrawableCurve cur = dc1;
+			while (!cur.m_isStartCurve)
+				cur = cur.m_prev;
+
+			if (cur == dc1)
+				cur = this;
+			if (dc1.m_isStartCurve)
+				setAsStart();
+
+			DrawableCurve start = cur;
+
+			m_figure.Segments.Clear();
+			do
+			{
+				m_figure.Segments.Add(cur.m_segment);
+				cur = cur.m_next;
+			} while (cur != start && cur != null);
+			for (int i = 0; i < 4; i++)
+			{
+				m_canvas.Children.Add(m_points[i]);
+			}
+
+			for (int i = 0; i < 2; i++)
+			{
+				m_canvas.Children.Add(m_middleLines[i]);
+			}
+
+			dc1.erase();
+			dc2.erase();
 		}
 
     }

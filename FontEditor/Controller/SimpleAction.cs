@@ -154,5 +154,41 @@ namespace FontEditor.Controller
 				throw new NotImplementedException();
 			}
 		}
+
+		class SplitAction : SimpleAction
+		{
+			private DrawableCurve curve1;
+			private DrawableCurve curve2;
+			private DrawableCurve oldCurve;
+			public SplitAction(DrawableCurve dc1, DrawableCurve dc2, DrawableCurve prev, SegmentController c)
+				: base(c)
+			{
+				curve1 = dc1;
+				curve2 = dc2;
+				oldCurve = prev;
+			}
+
+			public override void undo()
+			{
+				oldCurve.Replace(curve1, curve2);
+
+				m_controller.m_curves.Remove(curve1);
+				m_controller.m_curves.Remove(curve2);
+				Path path = m_controller.m_curvesToPaths[curve1];
+				m_controller.m_curvesToPaths.Remove(curve1);
+				m_controller.m_curvesToPaths.Remove(curve2);
+				m_controller.m_pathsToCurves[path].Remove(curve1);
+				m_controller.m_pathsToCurves[path].Remove(curve2);
+
+				m_controller.m_curvesToPaths.Add(oldCurve, path);
+				m_controller.m_curves.AddLast(oldCurve);
+				m_controller.m_pathsToCurves[path].AddLast(oldCurve);
+			}
+
+			public override void redo()
+			{
+				throw new NotImplementedException();
+			}
+		}
 	}
 }
