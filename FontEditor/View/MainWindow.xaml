@@ -77,12 +77,12 @@
                             <ColumnDefinition Width="90*"/>
                             <ColumnDefinition Width="73*"/>
                         </Grid.ColumnDefinitions>
-                        <Label Name="LoadedFontLabel" HorizontalAlignment="Left" VerticalAlignment="Center" Content="No font loaded" Width="96" Margin="-6,21,0,19" Height="24"/>
+                        <Label Name="LoadedFontLabel" HorizontalAlignment="Left" VerticalAlignment="Center" Content="No font loaded" Width="96" Margin="-6,22,0,10" Height="33"/>
                         <Button Content="Create font" HorizontalAlignment="Left" VerticalAlignment="Top" Width="73" Height="25" Click="CreateFontButton_Click" Grid.Column="1"/>
                         <Button Content="Load font" Click="LoadFontButtonClick" Height="25" VerticalAlignment="Bottom" Grid.Column="1" Margin="0,0,4,0" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Name="LetterEditor" IsEnabled="False" Header="Letter editor" Margin="480,104,19,197">
+                <GroupBox Name="LetterEditor" IsEnabled="True" Header="Letter editor" Margin="480,104,19,197">
                     <Grid HorizontalAlignment="Left" Height="110" Margin="0,-14,-12,-22" VerticalAlignment="Top" Width="180">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="8*"/>
@@ -92,7 +92,7 @@
                         <Button Content="Clear" Margin="95,75,10,10" Click="Clear_Click" Grid.ColumnSpan="2"/>
                         <Button x:Name="SaveLetterButton" IsEnabled="False" Content="Save letter" Click="SaveLetterButton_OnClick" Margin="51,114,54,-30" RenderTransformOrigin="-0.185,1.505" Grid.ColumnSpan="2"/>
                         <Label x:Name="LetterLabel" IsEnabled="True" Content="Letter"  Margin="0,26,39,56"/>
-                        <TextBox x:Name="LetterTextBox" MaxLength="1" IsEnabled="False" TextWrapping="Wrap" Margin="51,30,16,56" TextChanged="LetterTextBox_TextChanged"/>
+                        <TextBox x:Name="LetterTextBox" MaxLength="1" IsEnabled="True" TextWrapping="Wrap" Margin="51,30,16,56" TextChanged="LetterTextBox_TextChanged"/>
                         <StackPanel Margin="11,61,22,13">
                             <RadioButton Content="Draw" Checked="RadioButton_Checked" IsChecked="True"/>
                             <RadioButton Content="Move" Checked="RadioButton_Checked"/>

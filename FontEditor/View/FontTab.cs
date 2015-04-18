@@ -22,13 +22,19 @@ namespace FontEditor.View
         private Point m_startMouseClick;
         private SegmentController m_segmentController;
         private Font m_font = null;
+        private bool isTmpFont = false;
 
         private void initFontTab()
 		{
             m_segmentController = new SegmentController(fontCanvas, previewGrid);
             var backgroundGrid = CreateGridBrush(new Rect( new Size((int) fontCanvas.Width, (int) fontCanvas.Height)), new Size(20, 20));
             
+            // Draw grid
             fontCanvas.Background = backgroundGrid;
+
+            isTmpFont = true;
+            LoadedFontLabel.Content = "Temporary font";
+             
 		}
 
         static Brush CreateGridBrush(Rect bounds, Size tileSize)
@@ -140,9 +146,15 @@ namespace FontEditor.View
 
         private void CreateFontButton_Click(object sender, RoutedEventArgs e)
         {
+            CreateFont();
+            Clear();
+        }
+
+        private void CreateFont()
+        {
             var dlg = new Microsoft.Win32.SaveFileDialog
             {
-                FileName = "MyLovelyFont",
+                FileName = "new_font",
                 DefaultExt = ".fnt",
                 Filter = "Fonts (*.fnt)|*.fnt"
             };
@@ -160,17 +172,20 @@ namespace FontEditor.View
             fs.Close();
 
             m_font = new Font(dlg.FileName);
+
+            isTmpFont = false;
             LoadedFontLabel.Content = Path.GetFileNameWithoutExtension(dlg.FileName);
-            LetterTextBox.IsEnabled = true;
-            SaveLetterButton.IsEnabled = true;
-            LetterEditor.IsEnabled = true;
+
         }
 
         private void LoadFontButtonClick(object sender, RoutedEventArgs e)
         {
-            LetterTextBox.Text = "";
-            m_segmentController.clear();
+            LoadFont();
+            Clear();
+        }
 
+        private void LoadFont()
+        {
             var dlg = new Microsoft.Win32.OpenFileDialog
             {
                 DefaultExt = ".fnt",
@@ -181,11 +196,11 @@ namespace FontEditor.View
             var result = dlg.ShowDialog();
             if (result != true) return;
 
-            m_font = new Font(dlg.FileName);
+            var filename = dlg.FileName;
+            m_font = new Font(filename);
+
+            isTmpFont = false;
             LoadedFontLabel.Content = Path.GetFileNameWithoutExtension(dlg.FileName);
-            LetterTextBox.IsEnabled = true;
-            SaveLetterButton.IsEnabled = true;
-            LetterEditor.IsEnabled = true;
         }
 
         private void Undo_Click(object sender, RoutedEventArgs e)
@@ -205,6 +220,10 @@ namespace FontEditor.View
 			if (LetterTextBox.Text.Length > 0)
 			{
 				var letter = new Letter(Char.ToUpper(LetterTextBox.Text[0]), letterPath, m_segmentController.getCurveList());
+
+                if (isTmpFont)
+                    CreateFont();
+                
 				m_font.AddLetterToFont(letter);
 			}
         }
@@ -212,13 +231,18 @@ namespace FontEditor.View
 
 		private void Clear_Click(object sender, RoutedEventArgs e)
 		{
-            LetterTextBox.Text = "";
-			m_segmentController.clear();
-			Undo.IsEnabled = false;
+		    Clear();
 		}
 
+        private void Clear()
+        {
+            LetterTextBox.Text = "";
+            m_segmentController.clear();
+            Undo.IsEnabled = false;
+        }
 
-		private void LetterTextBox_TextChanged(object sender, TextChangedEventArgs e)
+
+        private void LetterTextBox_TextChanged(object sender, TextChangedEventArgs e)
 		{
 			if (LetterTextBox.Text != "")
 			{
@@ -226,6 +250,7 @@ namespace FontEditor.View
 				{
 					m_segmentController.showLetter(m_font.getLetter(LetterTextBox.Text[0]));
 				}
+			    SaveLetterButton.IsEnabled = true;
 			}
 		}
 
