@@ -479,7 +479,10 @@ namespace FontEditor.Controller
 		public void showLetter(Letter letter)
 		{
 			if (letter == null)
+			{
+				curLetter = (char)0;
 				return;
+			}
 			if (curLetter == letter.Name)
 				return;
 
@@ -490,7 +493,7 @@ namespace FontEditor.Controller
 			{
 				PathFigure pf = new PathFigure();
 				LinkedListNode<Curve> node = curves.First;
-				DrawableCurve prevCurve = new DrawableCurve(node.Value, pf, m_canvas, this); // Here curve adds itself to canvas -> Bootstrapping
+				DrawableCurve prevCurve = new DrawableCurve(node.Value.getCopy(), pf, m_canvas, this); // Here curve adds itself to canvas -> Bootstrapping
 				if (startIndex.Value == 0)
 					prevCurve.setAsStart();
 
@@ -501,7 +504,7 @@ namespace FontEditor.Controller
 				for (int i = 1; i < curves.Count; i++)
 				{
 					node = node.Next;
-					last = new DrawableCurve(node.Value, prevCurve, m_canvas, this, false);
+					last = new DrawableCurve(node.Value.getCopy(), prevCurve, m_canvas, this, false);
 					m_pathsToCurves[m_curvesToPaths[prevCurve]].AddLast(last);
 					m_curvesToPaths[last] = m_curvesToPaths[prevCurve];
 					prevCurve = last;

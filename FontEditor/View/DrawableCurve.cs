@@ -70,7 +70,7 @@ namespace FontEditor.View
 			for (int i = 0; i < 2; i++)
 			{
 				m_middleLines[i] = new Line();
-				m_middleLines[i].Stroke = Brushes.LightGray;
+				m_middleLines[i].Stroke = Brushes.Gray;
 				m_canvas.Children.Add(m_middleLines[i]);
 			}
 
@@ -95,15 +95,13 @@ namespace FontEditor.View
 		private void recountMiddleLines()
 		{
 			Point[] p = getPoints();
-			m_middleLines[0].X1 = (8.0 / 27 * p[0].X+ 4.0 / 9 * p[1].X + 2.0 / 9 * p[2].X + 1.0 / 27 * p[3].X);
-			m_middleLines[0].Y1 = (8.0 / 27 * p[0].Y + 4.0 / 9 * p[1].Y + 2.0 / 9 * p[2].Y + 1.0 / 27 * p[3].Y);
-			m_middleLines[1].X1 = (1.0 / 27 * p[0].X + 2.0 / 9 * p[1].X + 4.0 / 9 * p[2].X + 8.0 / 27 * p[3].X);
-			m_middleLines[1].Y1 = (1.0 / 27 * p[0].Y + 2.0 / 9 * p[1].Y + 4.0 / 9 * p[2].Y + 8.0 / 27 * p[3].Y);
 
 			for (int i = 0; i < 2; i++)
 			{
 				m_middleLines[i].X2 = p[i + 1].X;
 				m_middleLines[i].Y2 = p[i + 1].Y;
+				m_middleLines[i].X1 = p[3 * i].X;
+				m_middleLines[i].Y1 = p[3 * i].Y;
 			}
 		}
 
@@ -259,7 +257,8 @@ namespace FontEditor.View
 				m_prev.m_next = null;
 			for (int i = 0; i < 4; i++)
 				m_canvas.Children.Remove(m_points[i]);
-
+			for (int i = 0; i < 2; i++)
+				m_canvas.Children.Remove(m_middleLines[i]);
 		}
 
         public void translate(int idx, Vector dv)
