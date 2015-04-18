@@ -280,12 +280,12 @@ namespace FontEditor.View
             }
 			if (smooth && needSmooth)
 			{
-				if (null != m_prev && idx <= 1)
+				if (null != m_prev)
 				{
 					m_prev.m_curve.smoothifyWithNext(m_curve);
 					m_prev.redraw();
 				}
-				if (null != m_next && idx >= 2)
+				if (null != m_next)
 				{
 					m_next.m_curve.smoothifyWithPrev(m_curve);
 					m_next.redraw();
