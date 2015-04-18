@@ -10,7 +10,7 @@
     <TabControl x:Name="tabControl1" HorizontalAlignment="Left" Width="691"  Background="Bisque" SelectionChanged="tabControl1_SelectionChanged" MouseDown="tabControl1_MouseDown" KeyDown="tabControl1_KeyDown" Margin="0,0,-6,-18">
 
 
-        <TabItem Name="fontTab" Header="Font editor" Margin="0,0,0,-1" Width="262"
+        <TabItem Name="fontTab" Header="Font editor" Margin="0,0,-199,-1"
                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -88,9 +88,9 @@
                             <ColumnDefinition Width="8*"/>
                             <ColumnDefinition Width="7*"/>
                         </Grid.ColumnDefinitions>
-                        <Button x:Name="Undo"  Content="Undo" Width="75" Height="25" Click="Undo_Click" IsEnabled="False" Margin="0,21,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" RenderTransformOrigin="0.493,-0.85" Grid.Column="1"/>
-                        <Button Content="Clear" Margin="0,57,9,28" Click="Clear_Click" Grid.Column="1"/>
-                        <Button x:Name="SaveLetterButton" IsEnabled="False" Content="Save letter" Click="SaveLetterButton_OnClick" Margin="51,97,54,-13" RenderTransformOrigin="-0.185,1.505" Grid.ColumnSpan="2"/>
+                        <Button x:Name="Undo"  Content="Undo" Width="75" Height="25" Click="Undo_Click" IsEnabled="False" Margin="95,45,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" RenderTransformOrigin="0.493,-0.85" Grid.ColumnSpan="2"/>
+                        <Button Content="Clear" Margin="95,75,10,10" Click="Clear_Click" Grid.ColumnSpan="2"/>
+                        <Button x:Name="SaveLetterButton" IsEnabled="False" Content="Save letter" Click="SaveLetterButton_OnClick" Margin="51,114,54,-30" RenderTransformOrigin="-0.185,1.505" Grid.ColumnSpan="2"/>
                         <Label x:Name="LetterLabel" IsEnabled="True" Content="Letter"  Margin="0,26,39,56"/>
                         <TextBox x:Name="LetterTextBox" MaxLength="1" IsEnabled="False" TextWrapping="Wrap" Margin="51,30,16,56" TextChanged="LetterTextBox_TextChanged"/>
                         <StackPanel Margin="11,61,22,13">
@@ -103,9 +103,10 @@
 
                 <GroupBox Header="Preview" Margin="480,269,19,19"/>
                 <Label x:Name="LetterLabel_Copy" IsEnabled="False" Content="Letter"  Margin="758,179,-138,243"/>
+                <CheckBox Content="smooth" HorizontalAlignment="Left" Margin="587,126,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.382,-1.688" Unchecked="CheckBox_Unchecked" Checked="CheckBox_Checked"/>
             </Grid>
         </TabItem>
-        <TabItem Header="Text editor" Margin="0,0,0,-1" Width="250"
+        <TabItem Header="Text editor" Margin="200,0,-387,-1"
                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 

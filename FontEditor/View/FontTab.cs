@@ -183,5 +183,18 @@ namespace FontEditor.View
 				}
 			}
 		}
+
+
+		private void CheckBox_Checked(object sender, RoutedEventArgs e)
+		{
+			m_segmentController.makeSmooth(true);
+		}
+
+
+		private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+		{
+			m_segmentController.makeSmooth(false);
+		}
+
     }
 }

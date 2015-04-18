@@ -521,5 +521,12 @@ namespace FontEditor.Controller
 			updatePreview(m_previewGrid);
 			curLetter = letter.Name;
 		}
+
+		public void makeSmooth(bool smooth)
+		{ 
+		
+		}
     }
+
+
 }
