@@ -52,6 +52,8 @@ namespace FontEditor.View
 		private bool m_isStartCurve = false;
 		private Line[] m_middleLines = null;
 
+		public static bool smooth = false; 
+
         public DrawableCurve(Curve curve, PathFigure pathFigure, Canvas myCanvas, SegmentController controller)
         {
             m_curve = curve;
@@ -264,33 +266,51 @@ namespace FontEditor.View
 				m_canvas.Children.Remove(m_middleLines[i]);
 		}
 
-        public void translate(int idx, Vector dv)
+        public void translate(int idx, Vector dv, bool needSmooth = true)
         {
 			System.Diagnostics.Debug.WriteLine(idx.ToString());
             m_curve.translate(idx, dv);
-            Point[] p = m_curve.getPoints();
-            m_segment.Point1 = p[1];
-            m_segment.Point2 = p[2];
-            m_segment.Point3 = p[3];
-
-            for (int i = 0; i < 4; i++)
+			if (idx == 3 && m_next != null)
             {
-                Canvas.SetLeft(m_points[i], p[i].X - radiuses[i]);
-                Canvas.SetTop(m_points[i], p[i].Y - radiuses[i]);
+                m_next.translate(0, dv, false);
             }
+			if (smooth && needSmooth)
+			{
+				if (null != m_prev)
+				{
+					m_prev.m_curve.smoothifyWithNext(m_curve);
+					m_prev.redraw();
+				}
+				if (null != m_next)
+				{
+					m_next.m_curve.smoothifyWithPrev(m_curve);
+					m_next.redraw();
+				}
+			}
 
-            if (idx == 3 && m_next != null)
-            {
-                m_next.translate(0, dv);
-            }
+			redraw();
+        }
 
-            if (m_isStartCurve && m_figure != null)
-            {
-                m_figure.StartPoint = p[0];
-            }
+		private void redraw()
+		{
+			Point[] p = m_curve.getPoints();
+			m_segment.Point1 = p[1];
+			m_segment.Point2 = p[2];
+			m_segment.Point3 = p[3];
+
+			for (int i = 0; i < 4; i++)
+			{
+				Canvas.SetLeft(m_points[i], p[i].X - radiuses[i]);
+				Canvas.SetTop(m_points[i], p[i].Y - radiuses[i]);
+			}
+
+			if (m_isStartCurve && m_figure != null)
+			{
+				m_figure.StartPoint = p[0];
+			}
 
 			recountMiddleLines();
-        }
+		}
 
 		public PathFigure getMyFigure()
 		{
@@ -510,6 +530,7 @@ namespace FontEditor.View
 				m_pathIsClosed = false;
 				closestCurve.m_figure.StartPoint = closestCurve.getPoints()[0];
 				closestCurve.m_isStartCurve = true;
+				
 			}
 			else
 			{
@@ -542,6 +563,7 @@ namespace FontEditor.View
 			if (!pathWasClosed)
 				translate(closestIdx, -dv);
 
+			m_figure.IsClosed = false;
 			return true;
 		}
 

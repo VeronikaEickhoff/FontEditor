@@ -43,7 +43,8 @@ namespace FontEditor.Controller
 		private Vector m_startMousePos;
 		private Grid m_previewGrid;
         private Grid m_previewCanvas;
-		private char curLetter = (char)0; 
+		private char curLetter = (char)0;
+		private bool m_smooth = false;
 
         public void setTouchedCurve(DrawableCurve c, int touchedPoint)
         {
@@ -523,8 +524,8 @@ namespace FontEditor.Controller
 		}
 
 		public void makeSmooth(bool smooth)
-		{ 
-		
+		{
+			DrawableCurve.smooth = smooth;
 		}
     }
 

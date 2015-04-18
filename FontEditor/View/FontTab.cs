@@ -150,7 +150,7 @@ namespace FontEditor.View
             Clear();
         }
 
-        private void CreateFont()
+        private bool CreateFont()
         {
             var dlg = new Microsoft.Win32.SaveFileDialog
             {
@@ -162,7 +162,8 @@ namespace FontEditor.View
             // Show save font dialog box
             var result = dlg.ShowDialog();
 
-            if (result != true) return;
+            if (result != true) 
+				return false;
 
             // Save font
             var filename = dlg.FileName;
@@ -175,6 +176,7 @@ namespace FontEditor.View
 
             isTmpFont = false;
             LoadedFontLabel.Content = Path.GetFileNameWithoutExtension(dlg.FileName);
+			return true;
 
         }
 
@@ -221,8 +223,11 @@ namespace FontEditor.View
 			{
 				var letter = new Letter(Char.ToUpper(LetterTextBox.Text[0]), letterPath, m_segmentController.getCurveList());
 
-                if (isTmpFont)
-                    CreateFont();
+				if (isTmpFont)
+				{
+					if (!CreateFont())
+						return;
+				}
                 
 				m_font.AddLetterToFont(letter);
 			}

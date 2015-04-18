@@ -109,5 +109,31 @@ namespace FontEditor.Model
 
 			return s;
 		}
+
+		public void smoothifyWithNext(Curve next)
+		{
+			Vector v0 = (Vector)next.m_points[0];
+			Vector v1 = (Vector)next.m_points[1];
+
+			Vector u2 = (Vector)m_points[2];
+			Vector u3 = (Vector)m_points[3];
+
+			Vector dir = v0 - v1;
+			Vector prevDir = u2 - u3;
+			m_points[2] = (Point)(u3 + dir * prevDir.Length / dir.Length);
+		}
+
+		public void smoothifyWithPrev(Curve prev)
+		{
+			Vector v0 = (Vector)m_points[0];
+			Vector v1 = (Vector)m_points[1];
+
+			Vector u2 = (Vector)prev.m_points[2];
+			Vector u3 = (Vector)prev.m_points[3];
+
+			Vector dir = u3 - u2;
+			Vector prevDir = v1 - v0;
+			m_points[1] = (Point)(v0 + dir * prevDir.Length / dir.Length);
+		}
     }
 }
