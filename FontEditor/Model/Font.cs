@@ -34,22 +34,31 @@ namespace FontEditor.Model
             }
         }
 
-        // Create letter and append it to the end of font file
-        public void AddLetterToFont(Letter letter)
-        {
-            if (m_letterNames.Contains(Char.ToUpper(letter.Name)))
-                return;
+		// Create letter and append it to the end of font file
+		public void AddLetterToFont(Letter letter)
+		{
+			if (m_letterNames.Contains(Char.ToUpper(letter.Name)))
+			{
+				m_letterNames.Remove(Char.ToUpper(letter.Name));
+				m_letters.Remove(letter);
+			}
 
-            m_letters.Add(letter);
+			m_letters.Add(letter);
 			m_letterNames.Add(Char.ToUpper(letter.Name));
 
-            var serializedLetter = letter.Serialize();
+			var serializedLetter = letter.Serialize();
 
-            using (var sw = File.AppendText(m_fontFileName))
-            {
-                sw.WriteLine(serializedLetter);
-            }
-        }
+			// it's shit to save letter each time in file; by the way, appending is also bad for we would like to 
+			// be able to change letter after we have saved it once
+			// we'd better just have stored letters in m_letters structure, and save them to file only when user explicitly 
+			// pushes specified button (save font or smth like that), or ask about if he wants to save the font if he is about
+			// to lose his results while creating new font or closing an app
+			// TODO Veronika, rewrite following three lines, they are incorrect now
+			using (var sw = File.AppendText(m_fontFileName))
+			{
+				sw.WriteLine(serializedLetter);
+			}
+		}
 
         public Path FindLetter(char c)
         {
