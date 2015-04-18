@@ -26,6 +26,51 @@ namespace FontEditor.View
         private void initFontTab()
 		{
             m_segmentController = new SegmentController(fontCanvas, previewGrid);
+            var backgroundGrid = CreateGridBrush(new Rect( new Size((int) fontCanvas.Width, (int) fontCanvas.Height)), new Size(20, 20));
+            
+            fontCanvas.Background = backgroundGrid;
+		}
+
+        static Brush CreateGridBrush(Rect bounds, Size tileSize)
+        {
+            var gridColor = Brushes.Gray;
+            var gridThickness = 0.5;
+            var tileRect = new Rect(tileSize);
+
+            var gridTile = new DrawingBrush
+            {
+                Stretch = Stretch.None,
+                TileMode = TileMode.Tile,
+                Viewport = tileRect,
+                ViewportUnits = BrushMappingMode.Absolute,
+                Drawing = new GeometryDrawing
+                {
+                    Pen = new Pen(gridColor, gridThickness),
+                    Geometry = new GeometryGroup
+                    {
+                        Children = new GeometryCollection
+                {
+                    new LineGeometry(tileRect.TopLeft, tileRect.BottomRight),
+                    new LineGeometry(tileRect.BottomLeft, tileRect.TopRight)
+                }
+                    }
+                }
+            };
+
+            var offsetGrid = new DrawingBrush
+            {
+                Stretch = Stretch.None,
+                AlignmentX = AlignmentX.Left,
+                AlignmentY = AlignmentY.Top,
+                Transform = new TranslateTransform(bounds.Left, bounds.Top),
+                Drawing = new GeometryDrawing
+                {
+                    Geometry = new RectangleGeometry(new Rect(bounds.Size)),
+                    Brush = gridTile
+                }
+            };
+
+            return offsetGrid;
         }
 
         private void onFontTabSelected()

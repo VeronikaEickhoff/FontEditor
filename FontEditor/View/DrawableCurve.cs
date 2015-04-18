@@ -38,12 +38,12 @@ namespace FontEditor.View
 
         private DrawableCurve m_next;
         private DrawableCurve m_prev;
-        private static double outerPointRadius = 6;
-        private static double innerPointRadius = 4;
+        private static double outerPointRadius = 4;
+        private static double innerPointRadius = 2;
         private static double[] radiuses = { outerPointRadius, innerPointRadius, innerPointRadius, outerPointRadius };
         private static Brush[] untouchedBrushes = {Brushes.Black, Brushes.Gray, Brushes.Gray, Brushes.Black};
-		private static Brush overBrush = Brushes.Olive;
-		private static Brush touchedBrush = Brushes.DeepPink;
+		private static Brush overBrush = Brushes.DodgerBlue;
+		private static Brush touchedBrush = Brushes.LimeGreen;
 
         private bool m_isTouched = false;
         private Point m_lastTouchPos;
@@ -63,14 +63,15 @@ namespace FontEditor.View
             m_figure.IsClosed = false;
 
             m_segment = new BezierSegment(p[1], p[2], p[3], true);
-			
             m_figure.Segments.Add(m_segment);
 			m_middleLines = new Line[2];
 
 			for (int i = 0; i < 2; i++)
 			{
 				m_middleLines[i] = new Line();
-				m_middleLines[i].Stroke = Brushes.Gray;
+				m_middleLines[i].Stroke = Brushes.Red;
+                m_middleLines[i].StrokeThickness = 1;
+                m_middleLines[i].StrokeDashArray = new DoubleCollection(new List<double>(){10, 5});
 				m_canvas.Children.Add(m_middleLines[i]);
 			}
 
@@ -234,7 +235,9 @@ namespace FontEditor.View
 			for (int i = 0; i < 2; i++)
 			{
 				m_middleLines[i] = new Line();
-				m_middleLines[i].Stroke = Brushes.LightGray;
+                m_middleLines[i].Stroke = Brushes.Red;
+                m_middleLines[i].StrokeThickness = 1;
+                m_middleLines[i].StrokeDashArray = new DoubleCollection(new List<double>() { 10, 5 });
 				m_canvas.Children.Add(m_middleLines[i]);
 			}
 

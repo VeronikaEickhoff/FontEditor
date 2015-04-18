@@ -315,7 +315,7 @@ namespace FontEditor.Controller
 			System.Windows.Shapes.Path path = new Path();
 			path.Stroke = Brushes.Black;
 			path.Data = pg;
-			path.StrokeThickness = 2;
+			path.StrokeThickness = 1;
 			path.MouseDown += onCurveMouseDown;
 			path.MouseEnter += onMouseOverPath;
 			path.MouseLeave += onMouseLeftPath;
@@ -355,7 +355,7 @@ namespace FontEditor.Controller
 
             var path = (Path)sender;
 
-            path.Stroke = new SolidColorBrush(Colors.DeepPink);
+            path.Stroke = new SolidColorBrush(Colors.LimeGreen);
             m_prevMousePos = (Vector)e.GetPosition(m_canvas);
             m_touchedPath = path;
         }
@@ -367,7 +367,7 @@ namespace FontEditor.Controller
             if (!m_isMousePressed)
             {
                 Path path = (Path)sender;
-                path.Stroke = new SolidColorBrush(Colors.DarkOliveGreen);
+                path.Stroke = new SolidColorBrush(Colors.DodgerBlue);
             }
         }
 
