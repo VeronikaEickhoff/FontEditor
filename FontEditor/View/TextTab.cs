@@ -54,6 +54,7 @@ namespace FontEditor.View
 
         private Font m_currentFont;
         private Text m_text;
+        private int m_textSize;
 
         [DllImport("kernel32.dll")]
         static extern bool AttachConsole(int dwProcessId);
@@ -231,7 +232,7 @@ namespace FontEditor.View
         }
 
 
-        private void LoadButton_OnClick(object sender, RoutedEventArgs e)
+        private void ChooseFontButton_OnClick(object sender, RoutedEventArgs e)
         {
             var dlg = new Microsoft.Win32.OpenFileDialog
             {
@@ -245,6 +246,8 @@ namespace FontEditor.View
 
             m_currentFont = new Font(dlg.FileName);
             TELoadedFontLabel.Content = System.IO.Path.GetFileNameWithoutExtension(dlg.FileName);
+
+            TextEditTextBox.Text += "\n<font=" + System.IO.Path.GetFileNameWithoutExtension(dlg.FileName) + ">\n";
         }
 
         private Path ClonePath(Path source)
@@ -342,6 +345,13 @@ namespace FontEditor.View
 
                 TextEditorWrapPanel.Children.Add(letterGrid);
             }
+        }
+
+
+        private void SetSizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            TextEditTextBox.Text += "\n<size=" + TextSize.Text + ">\n";
+            m_textSize = Int32.Parse(TextSize.Text);
         }
 
     }

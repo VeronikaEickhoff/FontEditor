@@ -71,7 +71,6 @@ namespace FontEditor.View
                 textTabKeyDown(sender, e);
             }
         }
-     
 
     }
 
