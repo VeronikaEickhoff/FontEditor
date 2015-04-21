@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Path = System.Windows.Shapes.Path;
 
@@ -22,11 +23,16 @@ namespace FontEditor.Model
 			m_letters = new List<Letter>();
 			m_letterNames = new List<char>();
 
+            if (!File.Exists(m_fontFileName))
+                return;
+
             using (var sr = File.OpenText(m_fontFileName))
             {
-                var s = "";
-                while ((s = sr.ReadLine()) != "-text-" && s != null)
+                while (true)
                 {
+                    var s = sr.ReadLine();
+                    if (s == null || Regex.IsMatch(s, @"\$\S+\$")) break; // next font or text starts
+
                     var letter = new Letter(s);
 					m_letters.Add(letter);
 					m_letterNames.Add(letter.Name);
@@ -34,7 +40,34 @@ namespace FontEditor.Model
             }
         }
 
-		// Create letter and append it to the end of font file
+        public Font(string str, bool fromStirng)
+        {
+            m_letters = new List<Letter>();
+            m_letterNames = new List<char>();
+
+            using (var sr = new StringReader(str))
+            {
+                while (true)
+                {
+                    var s = sr.ReadLine();
+                    if (s == null || Regex.IsMatch(s, @"\$\S+\$")) break; // next font or text starts
+
+                    var letter = new Letter(s);
+                    m_letters.Add(letter);
+                    m_letterNames.Add(letter.Name);
+                }
+            }
+        }
+
+        public IEnumerable<Path> LettersPaths
+        {
+            get
+            {
+                return m_letters.Select(letter => letter.LetterPath).ToList();
+            }
+        }
+
+        // Create letter and append it to the end of font file
 		public void AddLetterToFont(Letter letter)
 		{
 			if (m_letterNames.Contains(Char.ToUpper(letter.Name)))
@@ -91,6 +124,12 @@ namespace FontEditor.Model
                     sw.WriteLine(serializedLetter);
                 }
             }
+        }
+
+        public string SerializeFont()
+        {
+            return m_letters.Select(letter => letter.Serialize())
+                            .Aggregate("", (current, serializedLetter) => current + Environment.NewLine + (serializedLetter));
         }
     }
 }

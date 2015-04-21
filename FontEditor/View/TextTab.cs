@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,11 +10,14 @@ using System.Windows.Shapes;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Windows.Controls;
 using FontEditor.Contoller;
 using FontEditor.Model;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using Path = System.Windows.Shapes.Path;
 using TextBox = System.Windows.Controls.TextBox;
 
 /// Andrusha codes here
@@ -55,7 +59,11 @@ namespace FontEditor.View
         private Font m_currentFont;
         private Text m_text;
         private int m_textSize;
+        private string m_fontName = null;
 
+        // To make everything faster - don't load a font if it's already loaded
+        private Dictionary<string, Font> fontsCache = new Dictionary<string, Font>();
+            
         [DllImport("kernel32.dll")]
         static extern bool AttachConsole(int dwProcessId);
         private const int ATTACH_PARENT_PROCESS = -1;
@@ -244,10 +252,38 @@ namespace FontEditor.View
             var result = dlg.ShowDialog();
             if (result != true) return;
 
-            m_currentFont = new Font(dlg.FileName);
+            string fontName = System.IO.Path.GetFileNameWithoutExtension(dlg.FileName) ?? "";
+            
+            // Load font from cache if possible
+            if (fontsCache.ContainsKey(fontName))
+                m_currentFont = fontsCache[fontName];
+            else
+            {
+                m_currentFont = new Font(dlg.FileName);
+                fontsCache[fontName] = m_currentFont;
+            }
+
+            m_fontName = dlg.FileName;
             TELoadedFontLabel.Content = System.IO.Path.GetFileNameWithoutExtension(dlg.FileName);
 
-            TextEditTextBox.Text += "\n<font=" + System.IO.Path.GetFileNameWithoutExtension(dlg.FileName) + ">\n";
+
+            // Show available letters in the bottom of the window
+            AvailableLettersWrapPanel.Children.Clear();
+            foreach (var letterPath in m_currentFont.LettersPaths)
+            {
+                var p = ClonePath(letterPath);
+                Grid letterGrid = new Grid
+                {
+                    Width = AvailableLettersWrapPanel.Height - 10,
+                    Height = AvailableLettersWrapPanel.Height - 10
+                };
+                letterGrid.Children.Add(p);
+
+                AvailableLettersWrapPanel.Children.Add(letterGrid);
+            }
+
+            TextEditTextBox.Text += "<font=" + fontName + ">";
+
         }
 
         private Path ClonePath(Path source)
@@ -265,14 +301,14 @@ namespace FontEditor.View
 
         private void TextBox_KeyUp(object sender, KeyEventArgs e)
         {
-            if (m_text == null)
+            /*if (m_text == null)
                 m_text = new Text(m_currentFont);
 
             if (m_currentFont == null) return;
 
             var textBox = sender as TextBox;
 
-            if (textBox.Text.Count() < 1)
+            if (!textBox.Text.Any())
                 return;
             var letterName = textBox.Text[textBox.Text.Count() - 1];
             
@@ -292,7 +328,7 @@ namespace FontEditor.View
             Grid letterGrid = new Grid {Width = TextEditorWrapPanel.Width/10, Height = TextEditorWrapPanel.Height/10};
             letterGrid.Children.Add(p);
 
-            TextEditorWrapPanel.Children.Add(letterGrid);
+            TextEditorWrapPanel.Children.Add(letterGrid);*/
         }
 
         private void SaveText_OnClick(object sender, RoutedEventArgs e)
@@ -312,8 +348,26 @@ namespace FontEditor.View
 
             // Save font
             var filename = dlg.FileName;
+/*
+            m_text.SaveText(filename, TextEditTextBox.Text);*/
+            SaveText(filename);
+        }
 
-            m_text.SaveText(filename, TextEditTextBox.Text);
+        private void SaveText(string filename)
+        {
+            File.WriteAllText(filename, string.Empty);
+            using (var sw = File.AppendText(filename))
+            {
+                // Save cache of fonts
+                foreach (var font in fontsCache)
+                {
+                    sw.WriteLine("$" + font.Key + "$");
+                    sw.WriteLine(font.Value.SerializeFont());
+                }
+                // Save text
+                sw.WriteLine("$text$");
+                sw.Write(TextEditTextBox.Text);
+            }
         }
 
         private void LoadText_Click(object sender, RoutedEventArgs e)
@@ -330,7 +384,7 @@ namespace FontEditor.View
             var result = dlg.ShowDialog();
             if (result != true) return;
 
-            m_text = new Text(dlg.FileName);
+            /*m_text = new Text(dlg.FileName);
             TextEditTextBox.Text = m_text.m_text;
 
             foreach (var letter in m_text.listOfLetters)
@@ -344,14 +398,108 @@ namespace FontEditor.View
                 letterGrid.Children.Add(p);
 
                 TextEditorWrapPanel.Children.Add(letterGrid);
+            }*/
+
+            LoadText(dlg.FileName);
+        }
+
+        private void LoadText(string filename)
+        {
+            // Fill fonts cache
+            using (var sr = File.OpenText(filename))
+            {
+                /*var s = "";
+                while (s != null)
+                {
+                    s = sr.ReadLine();
+                    var match = Regex.Match(s, @"\$(\S+?)\$\s+([^\$]+)");
+                    if (match.Success)
+                    {
+                        if (match.Groups[1].Value != "text")
+                            // Create font from the matched string
+                            fontsCache[match.Groups[1].Value] = new Font(match.Groups[2].Value, true);
+                        else
+                            TextEditTextBox.Text = sr.ReadToEnd();
+                    }
+                }*/
+
+                var s = sr.ReadToEnd();
+                while (s.Length > 0)
+                {
+                    var match = Regex.Match(s, @"^(\$(\S+?)\$\s+([^\$]+))");
+                    if (match.Success)
+                    {
+                        if (match.Groups[2].Value != "text")
+                            // Create font from the matched string
+                            fontsCache[match.Groups[2].Value] = new Font(match.Groups[3].Value, true);
+                        else
+                            TextEditTextBox.Text = match.Groups[3].Value;
+                    }
+                    s = s.Remove(0, match.Length);
+                }
+
             }
         }
 
 
         private void SetSizeButton_Click(object sender, RoutedEventArgs e)
         {
-            TextEditTextBox.Text += "\n<size=" + TextSize.Text + ">\n";
+            TextEditTextBox.Text += "<size=" + TextSize.Text + ">";
             m_textSize = Int32.Parse(TextSize.Text);
+        }
+
+        private void TextEditTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            TextEditorWrapPanel.Children.Clear();
+
+            // Parse new text format
+            var text = TextEditTextBox.Text;
+            while (text.Length > 0)
+            {
+                var match = Regex.Match(text, @"^(<size=(\d+)>([^<]*))");
+                if (match.Success)
+                {
+                    text = text.Remove(0, match.Length);
+                    m_textSize = Convert.ToInt32(match.Groups[2].Value);
+                    DrawText(match.Groups[3].Value);
+                }
+                else
+                {
+                    match = Regex.Match(text, @"^(<font=(\S+?)>([^<]*))");
+                    if (match.Success)
+                    {
+                        text = text.Remove(0, match.Length);
+                        m_fontName = match.Groups[2].Value;
+                        DrawText(match.Groups[3].Value);
+                    }
+                }
+            }
+        }
+
+        private void DrawText(string text)
+        {
+            if (text.Length == 0)
+                return;
+
+            if (m_fontName == null)
+                return;
+
+            string fontName = System.IO.Path.GetFileNameWithoutExtension(m_fontName) ?? "";
+
+            // Load font from cache if possible
+            m_currentFont = fontsCache[fontName];
+
+            foreach (var letterName in text)
+            {
+                Path letterPath = m_currentFont.FindLetter(letterName);
+                if (letterPath == null)
+                    continue;
+                var p = ClonePath(letterPath);
+                Grid letterGrid = new Grid { Width = m_textSize * 1000 / TextEditorWrapPanel.Width, Height = m_textSize * 1000 / TextEditorWrapPanel.Height};
+                letterGrid.Children.Add(p);
+
+                TextEditorWrapPanel.Children.Add(letterGrid);
+            }
         }
 
     }

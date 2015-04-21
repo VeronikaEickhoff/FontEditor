@@ -155,16 +155,19 @@
                 <Label Content="No font chosen" Name="TELoadedFontLabel" Canvas.Left="453" Canvas.Top="130" Height="26" Width="107"/>
                 <Button Content="Save text" Canvas.Left="565" Canvas.Top="46" Width="75" Click="SaveText_OnClick"/>
                 <Label Content="Type here" Canvas.Left="444" Canvas.Top="161"/>
-                <GroupBox Header="Text" Canvas.Left="434" Canvas.Top="22" Height="401" Width="218">
-                    <TextBox Name="TextEditTextBox" KeyUp="TextBox_KeyUp" HorizontalAlignment="Left" Height="231" Margin="0,148,-2,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="208"/>
+                <GroupBox Header="Text" Canvas.Left="434" Canvas.Top="22" Height="370" Width="218">
+                    <TextBox Name="TextEditTextBox" TextChanged="TextEditTextBox_OnTextChanged" KeyUp="TextBox_KeyUp" HorizontalAlignment="Left" Height="203" Margin="0,148,-2,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="208"/>
                 </GroupBox>
                 <Button Content="Load text" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Canvas.Left="444" Canvas.Top="46" Click="LoadText_Click"/>
-                <WrapPanel Name="TextEditorWrapPanel" Height="401" Canvas.Left="10" Canvas.Top="22" Width="405"/>
+                <WrapPanel Name="TextEditorWrapPanel" Height="355" Canvas.Left="10" Canvas.Top="22" Width="405"/>
                 <TextBox Name="TextSize" Text="{Binding Value, ElementName=SymbolSizeSlider, UpdateSourceTrigger=LostFocus}" TextAlignment="Right" Width="27" Canvas.Left="533" Canvas.Top="93" />
                 <Slider Canvas.Left="444" Canvas.Top="93" Width="80" RenderTransformOrigin="0.489,1.273" TickPlacement="BottomRight" IsSnapToTickEnabled="True" x:Name="SymbolSizeSlider" Minimum="8" Maximum="24" TickFrequency="2" Value="12"/>
                 <Button Content="Set size" Canvas.Left="565" Canvas.Top="93" Width="75" Click="SetSizeButton_Click"/>
                 <Separator Height="9" Canvas.Left="444" Margin="0" Canvas.Top="157" Width="196"/>
                 <Separator Height="9" Canvas.Left="444" Margin="0" Canvas.Top="79" Width="196"/>
+                <WrapPanel Name="AvailableLettersWrapPanel" Height="33" Canvas.Left="121" Canvas.Top="397" Width="531"/>
+                <Separator Height="15" Canvas.Left="9" Margin="0" Canvas.Top="382" Width="643"/>
+                <Label Content="Available letters:" Canvas.Left="10" Canvas.Top="397" Height="33"/>
 
             </Canvas>
         </TabItem>

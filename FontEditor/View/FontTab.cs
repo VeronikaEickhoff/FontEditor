@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -271,5 +272,6 @@ namespace FontEditor.View
 			m_segmentController.makeSmooth(false);
 		}
 
+       
     }
 }
