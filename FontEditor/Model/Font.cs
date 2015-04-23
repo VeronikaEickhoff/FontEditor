@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Path = System.Windows.Shapes.Path;
 
 namespace FontEditor.Model
@@ -13,15 +14,13 @@ namespace FontEditor.Model
     class Font
     {
         private string m_fontFileName;
-        private List<Letter> m_letters;
-		private List<char> m_letterNames;
+        private Dictionary<Char, Letter> m_letters;
 
         public Font(string fontFileName)
         {
             m_fontFileName = fontFileName;
 
-			m_letters = new List<Letter>();
-			m_letterNames = new List<char>();
+			m_letters = new Dictionary<Char, Letter>();
 
             if (!File.Exists(m_fontFileName))
                 return;
@@ -34,16 +33,14 @@ namespace FontEditor.Model
                     if (s == null || Regex.IsMatch(s, @"\$\S+\$")) break; // next font or text starts
 
                     var letter = new Letter(s);
-					m_letters.Add(letter);
-					m_letterNames.Add(letter.Name);
+					m_letters.Add(Char.ToUpper(letter.Name), letter);
                 }
             }
         }
 
         public Font(string str, bool fromStirng)
         {
-            m_letters = new List<Letter>();
-            m_letterNames = new List<char>();
+			m_letters = new Dictionary<Char, Letter>();
 
             using (var sr = new StringReader(str))
             {
@@ -53,31 +50,22 @@ namespace FontEditor.Model
                     if (s == null || Regex.IsMatch(s, @"\$\S+\$")) break; // next font or text starts
 
                     var letter = new Letter(s);
-                    m_letters.Add(letter);
-                    m_letterNames.Add(letter.Name);
+					m_letters.Add(Char.ToUpper(letter.Name), letter);
                 }
             }
         }
 
-        public IEnumerable<Path> LettersPaths
-        {
-            get
-            {
-                return m_letters.Select(letter => letter.LetterPath).ToList();
-            }
-        }
+
 
         // Create letter and append it to the end of font file
 		public void AddLetterToFont(Letter letter)
 		{
-			if (m_letterNames.Contains(Char.ToUpper(letter.Name)))
+			if (m_letters.ContainsKey(Char.ToUpper(letter.Name)))
 			{
-				m_letterNames.Remove(Char.ToUpper(letter.Name));
-				m_letters.Remove(letter);
+				m_letters.Remove(Char.ToUpper(letter.Name));
 			}
 
-			m_letters.Add(letter);
-			m_letterNames.Add(Char.ToUpper(letter.Name));
+			m_letters.Add(letter.Name, letter);
 
 			var serializedLetter = letter.Serialize();
 
@@ -96,39 +84,47 @@ namespace FontEditor.Model
         public Path FindLetter(char c)
         {
 			char name = Char.ToUpper(c);
-            if (!m_letterNames.Contains(name))
+            if (!m_letters.ContainsKey(name))
                 return null;
-			return m_letters[m_letterNames.IndexOf(name)].LetterPath;
+			return m_letters[name].LetterPath;
         }
 
 		public bool hasLetter(char l)
 		{ 
-			return (m_letterNames.Contains(Char.ToUpper(l)));
+			return (m_letters.ContainsKey(Char.ToUpper(l)));
 		}
 
 		public Letter getLetter(char l)
 		{
 			if (!hasLetter(l))
 				return null;
-			return m_letters[m_letterNames.IndexOf(Char.ToUpper(l))];
+			return m_letters[Char.ToUpper(l)];
 		}
 
         public void SaveFont(string filename)
         {
             using (var sw = File.CreateText(filename))
             {
-                foreach (var letter in m_letters)
+                foreach (var pair in m_letters)
                 {
-                    var serializedLetter = letter.Serialize();
+                    var serializedLetter = pair.Value.Serialize();
 
                     sw.WriteLine(serializedLetter);
                 }
             }
         }
 
+		public IEnumerable<Path> LettersPaths
+        {
+            get
+            {
+                return m_letters.Select(letter => letter.Value.LetterPath).ToList();
+            }
+       }
+
         public string SerializeFont()
         {
-            return m_letters.Select(letter => letter.Serialize())
+            return m_letters.Select(letter => letter.Value.Serialize())
                             .Aggregate("", (current, serializedLetter) => current + Environment.NewLine + (serializedLetter));
         }
     }

@@ -28,7 +28,7 @@ namespace FontEditor
         // (letter from font editor)
         public Letter(char name, Path letterPath, LinkedList<LinkedList<DrawableCurve>> drawableCurves)
         {
-            Name = name;
+            Name = Char.ToUpper(name);
             LetterPath = letterPath;
 
 			if (drawableCurves != null)

@@ -272,6 +272,11 @@ namespace FontEditor.View
 			m_segmentController.makeSmooth(false);
 		}
 
+		private void SaveFontButtonClicked(object sender, RoutedEventArgs e)
+		{
+
+		}
+
        
     }
 }
