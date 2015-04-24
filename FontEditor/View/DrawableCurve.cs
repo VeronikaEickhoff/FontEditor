@@ -709,5 +709,22 @@ namespace FontEditor.View
 			dc2.erase();
 		}
 
+		public LinkedList<DrawableCurve> getOrderedList()
+		{
+			LinkedList<DrawableCurve> ret = new LinkedList<DrawableCurve>();
+
+			DrawableCurve cur = this;
+			while (!cur.isStartCurve())
+				cur = cur.m_prev;
+
+			DrawableCurve start = cur;
+			do
+			{
+				ret.AddLast(cur);
+				cur = cur.m_next;
+			} while (cur != null && cur != start);
+
+			return ret;
+		}
     }
 }

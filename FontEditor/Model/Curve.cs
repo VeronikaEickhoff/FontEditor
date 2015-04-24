@@ -18,8 +18,8 @@ namespace FontEditor.Model
             m_points = new Point[4];
             m_points[0] = (Point)begin;
             m_points[3] = (Point)end;
-            m_points[1] = (Point)((1 - t1) * begin + t1 * end + new Vector(10,1));
-            m_points[2] = (Point)((1 - t2) * begin + t2 * end + new Vector(-10, 1));
+            m_points[1] = (Point)((1 - t1) * begin + t1 * end);
+            m_points[2] = (Point)((1 - t2) * begin + t2 * end);
         }
 
 		public Curve(Point a, Point b, Point c, Point d)

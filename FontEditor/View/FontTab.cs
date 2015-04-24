@@ -206,7 +206,11 @@ namespace FontEditor.View
 
             isTmpFont = false;
             LoadedFontLabel.Content = Path.GetFileNameWithoutExtension(dlg.FileName);
-			m_segmentController.showLetter(m_font.getLetter(LetterTextBox.Text[0]), true);
+			if (LetterTextBox.Text != "")
+				m_segmentController.showLetter(m_font.getLetter(LetterTextBox.Text[0]), true);
+			else
+				m_segmentController.clear();
+			SaveButton.IsEnabled = true;
         }
 
         private void Undo_Click(object sender, RoutedEventArgs e)

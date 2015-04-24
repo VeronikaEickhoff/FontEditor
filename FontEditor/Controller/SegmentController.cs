@@ -512,12 +512,7 @@ namespace FontEditor.Controller
 			LinkedList<LinkedList<DrawableCurve>> ret = new LinkedList<LinkedList<DrawableCurve>>();
 			foreach (Path p in m_pathsToCurves.Keys)
 			{
-				LinkedList<DrawableCurve> temp = new LinkedList<DrawableCurve>();
-				foreach (DrawableCurve dc in m_pathsToCurves[p])
-				{
-					temp.AddLast(dc);
-				}
-				ret.AddLast(temp);
+				ret.AddLast(m_pathsToCurves[p].First.Value.getOrderedList());
 			}
 			
 			return ret;
