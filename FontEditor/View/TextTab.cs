@@ -58,7 +58,7 @@ namespace FontEditor.View
 
         private Font m_currentFont;
         private Text m_text;
-        private int m_textSize;
+        private int m_textSize = 0;
         private string m_fontName = null;
 
         // To make everything faster - don't load a font if it's already loaded
@@ -283,7 +283,8 @@ namespace FontEditor.View
             }
 
             TextEditTextBox.Text += "<font=" + fontName + ">";
-
+			if (m_textSize == 0)
+				SetSizeButton_Click(null, null);
         }
 
         private Path ClonePath(Path source)
@@ -406,6 +407,9 @@ namespace FontEditor.View
         private void LoadText(string filename)
         {
             // Fill fonts cache
+			if (m_textSize == 0)
+				SetSizeButton_Click(null, null);
+
             using (var sr = File.OpenText(filename))
             {
                 /*var s = "";

@@ -1,0 +1,175 @@
+\documentclass[12pt]{article}
+\usepackage[T2A]{fontenc} 
+\usepackage[cp1251]{inputenc}
+\usepackage[russian, english]{babel}
+\usepackage{cmap}
+\usepackage{xkeyval}
+\usepackage[pdftex]{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage[labelformat=empty]{caption}
+\usepackage[left=2cm,right=2cm,
+     top=2cm,bottom=2cm,bindingoffset=0cm]{geometry}
+%\usepackage[pdftex]{graphics}
+\graphicspath{{images/}}
+\frenchspacing
+
+%4 listing 
+
+\usepackage{listings} %% собственно, это и есть пакет listings
+\usepackage{color} %% это для отображения цвета в коде
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\tolerance=10000
+
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{mygreen},    % comment style
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  frame=single,                    % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=Octave,                 % the language of the code
+  morekeywords={*,...},            % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\color{mygray}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=2,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{mymauve},     % string literal style
+  tabsize=2,                       % sets default tabsize to 2 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+\usepackage{caption}
+\DeclareCaptionFont{white}{\color{white}} %% это сделает текст заголовка белым
+%% код ниже нарисует серую рамочку вокруг заголовка кода.
+\DeclareCaptionFormat{listing}{\colorbox{black}{\parbox{\textwidth}{#1#2#3}}}
+\captionsetup[lstlisting]{format=listing,labelfont=white,textfont=white}
+
+\begin{document}
+\begin{titlepage}
+\begin{center}
+
+% Upper part of the page. The '~' is needed because \\
+% only works if a paragraph has started.
+
+\textsc{ Санкт-Петербургский государственный политехнический университет}\\
+\textsc{ кафедра прикладной математики и информатики}\\[1cm]
+\textsc{\Large Отчет по лабораторной работе по компьютерной графике}\\[0.5cm]
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+% Title
+\HRule \\[0.4cm]
+{ \medspace \bfseries Разработка программного пакета для редактирования шрифтов с использованием кривых Безье. \\[0.4cm] }
+
+\HRule \\[1.5cm]
+
+% Author and supervisor
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft} \large
+\emph{Авторы:}\\
+Прокофьева В.В., \\Серебро А. Е.
+\end{flushleft}
+\end{minipage}
+\begin{minipage}{0.4\textwidth}
+\begin{flushright} \large
+\emph{Преподаватель:} \\
+Ильин Ю.П.
+\end{flushright}
+\end{minipage}
+
+\vfill
+
+% Bottom of the page
+{\large \today}
+
+\end{center}
+\end{titlepage}
+\righthyphenmin=2
+\newpage
+
+\section* {Постановка задачи}
+\parindent=1cm
+
+\hspace{\parindent} Требуется разработать программный пакет для редактирования шрифтов и просмотра результатов с возможностью тестовой печати текста созданным шрифтом. Пользователь должен иметь возможность:
+\begin{itemize}
+  \item Создать новый шрифт
+  \item Редактировать внешний вид букв шрифта (буквы задаются набором кривых Безье) 
+  \item Сохранить внесённые изменения с возможностью последующей загрузки
+  \item Опробовать шрифт во встроенном текстовом редакторе. 
+\end{itemize}
+
+\section* {Используемая модель}
+\hspace{\parindent}Для решения поставленной задачи была применена теория кривых Безье. Напомним, что кривая Безье m-го порядка задаётся параметрическим уравнением
+$$R(t)=\sum\limits_{i=0}^{m}{m \choose i} t^i(1-t)^{m-i}P_i, t \in [0,1]$$
+где $P_i \in \mathbb{R}$ - базисные точки кривой.
+Важным при использовании кривых является понятие геометрической непрерывности. \\
+\textbf{def } Кривая называется $G^0$-непрерывной, если она непрерывна. \\
+\textbf{def } Кривая называется $G^1$-непрерывной, если она непрерывна, если её касательная меняется непрерывно при изменении параметра. \\
+\textbf{def } Кривая называется $G^2$-непрерывной, если она $G^1$-непрерывна и её вектор кривизны меняется непрерывно. \\
+
+Заметим, что при разработке шрфитов наиболее интересны геометрически непрерывные кривые разных порядков, ибо они позволяют достичь необходимоых виузальный свойств кривой. В частности, границы букв должны состоять из $G^0$-кривых. Если требуется гладкость границ, то стоит использовать $G^1$-кривые. Очевидно также, что на плоскости любая \\$G^1$- кривая будет $G^2$-кривой
+
+В нашей работе мы использовали кривые Безье третьего порядка, задаваемые четырьмя базисными точками на плоскости. Нетрудно понять, что любая кривая Безье априори является $G^1$-непрерывной. Однако, чтобы таким свойством обладала кривая, составленная из кривых Безье, требуется выполнение определённых граничных условий. 
+
+Для $G^1$-непрерывности составной кривой требуется, чтобы в точке сочленения направляющие векторы касательных были коллинеарны, что возможно только при условии нахождения трех последовательных крайних точек (точки сочленения и её соседей) на одной прямой.  
+ 
+ Для хранения модели были реализованы два класса. Класс \tt{Curve} \normalfont преставляет собой простую модель кривой Безье, а класс \tt{DrawableCurve}\normalfont\space- его обёртку, предоставляющую необходимые интерфейсы для отображения кривой на экране. Составная кривая хранится как объект, содержащий список объектов \tt{DrawableCurve}\normalfont\space, а также вспомогательную информацию о составной кривой (например, замкнута ли кривая).
+ 
+\section* {Подход к решению}
+\hspace{\parindent} Был 
+
+\section* {Тестирование программы}
+Был проведен ряд тестов, в ходе которых оба алгоритма выдавали верное решение с точностью $10^{-5}$ (в общем случае точность зависит от абсолютных величин коэффициентов матриц и векторов, подаваемых на вход, чем они больше, тем хуже точность из-за неравномерности машинной сетки чисел с плавающей точкой, которые используются при решении). 
+Рассмотренные тесты:\\
+\noindent test1:\\
+answer: x = 5.5, y = 0.5\\
+c = (1, 1)\\
+y >= -x + 6;\\
+x >= y + 5;\\
+y >= -x + 6;\\
+x >= y + 5;\\
+
+\noindent test2:\\
+answer: y = 1, x = 2\\
+с = (1, 1)\\
+y >= 4 - 1.5x1;\\
+y >= 0.5x1;\\
+y >= 2x1 - 6;\\
+
+\noindent test3:\\
+answer: y = 2, x in [2, 4]\\
+с = (1, 1)\\
+2 - y <= 0;\\
+2x + y >= 6;\\
+y - 2x >= -6;\\
+
+\noindent test4:\\
+answer: 0 0 5\\
+c = (-2, -3, -4)\\
+3x + 2y + z <= 10;\\
+2x + 5y + 3z <= 15;\\
+Все тесты были успешно пройдены, при этом оба метода выдавали одинаковые результаты (с точностью $10^{-5})$.
+\section* {Дополнительные исследования}
+Для анализа того, сколько операций совершает тот или иной метод, предлагается добавить счетчики операций (скорее всего, арифметических), дабы понять истинную амортизационную  оценку сложности. Далее, думаю можно сделать простенький генератор случайных матриц ограничений и параметров линейной задачи для того, чтобы получить большую статистическую выборку этих сложностей, и взяв например среднее выборочное, дать устойчивую оценку сложностей алгоритмов.
+
+\section* {Выводы}
+В ходе решения поставленной задачи я разобрался в том, как работает симплекс-метод и метод перебора граничных точек. 
+
+\bibliographystyle{unsrt}
+\renewcommand\refname{\centering СПИСОК ЛИТЕРАТУРЫ}
+\section*{Список литературы}
+[1] Карманов В. Г. Математическое программирование, Москва "Наука", Главная редакция физико-математической литературы, 1980.\newline
+[2] http://ru.wikipedia.org/wiki/Симплекс-метод
+\end{document}
