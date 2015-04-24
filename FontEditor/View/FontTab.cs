@@ -29,7 +29,6 @@ namespace FontEditor.View
 		{
             m_segmentController = new SegmentController(fontCanvas, previewGrid);
             var backgroundGrid = CreateGridBrush(new Rect( new Size((int) fontCanvas.Width, (int) fontCanvas.Height)), new Size(20, 20));
-            
             // Draw grid
             fontCanvas.Background = backgroundGrid;
 
@@ -57,8 +56,8 @@ namespace FontEditor.View
                     {
                         Children = new GeometryCollection
                 {
-                    new LineGeometry(tileRect.TopLeft, tileRect.BottomRight),
-                    new LineGeometry(tileRect.BottomLeft, tileRect.TopRight)
+                    new LineGeometry(tileRect.TopLeft, tileRect.TopRight),
+                    new LineGeometry(tileRect.TopLeft, tileRect.BottomLeft)
                 }
                     }
                 }

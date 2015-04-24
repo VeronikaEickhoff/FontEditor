@@ -1,7 +1,7 @@
 ﻿<Window x:Class="FontEditor.View.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="493.455" Width="690.644"
+        Title="Font and Text editor (by A. Serebro, V. Prokofeva)" Height="493.455" Width="690.644"
         TabIndex="2"
         Background="Bisque"
         ResizeMode="NoResize">
@@ -162,7 +162,7 @@
                     <TextBox Name="TextEditTextBox" TextChanged="TextEditTextBox_OnTextChanged" KeyUp="TextBox_KeyUp" HorizontalAlignment="Left" Height="203" Margin="0,148,-2,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="208"/>
                 </GroupBox>
                 <Button Content="Load text" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Canvas.Left="444" Canvas.Top="46" Click="LoadText_Click"/>
-                <WrapPanel Name="TextEditorWrapPanel" Height="355" Canvas.Left="10" Canvas.Top="22" Width="405"/>
+                <WrapPanel Name="TextEditorWrapPanel" Height="355" Canvas.Left="10" Canvas.Top="22" Width="400"/>
                 <TextBox Name="TextSize" Text="{Binding Value, ElementName=SymbolSizeSlider, UpdateSourceTrigger=LostFocus}" TextAlignment="Right" Width="27" Canvas.Left="533" Canvas.Top="93" />
                 <Slider Canvas.Left="444" Canvas.Top="93" Width="80" RenderTransformOrigin="0.489,1.273" TickPlacement="BottomRight" IsSnapToTickEnabled="True" x:Name="SymbolSizeSlider" Minimum="8" Maximum="24" TickFrequency="2" Value="12"/>
                 <Button Content="Set size" Canvas.Left="565" Canvas.Top="93" Width="75" Click="SetSizeButton_Click"/>
