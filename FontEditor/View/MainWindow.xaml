@@ -106,7 +106,7 @@
 
                 <GroupBox Header="Preview" Margin="480,269,19,19"/>
                 <Label x:Name="LetterLabel_Copy" IsEnabled="False" Content="Letter"  Margin="758,179,-138,243"/>
-                <CheckBox Content="smooth" HorizontalAlignment="Left" Margin="587,126,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.382,-1.688" Unchecked="CheckBox_Unchecked" Checked="CheckBox_Checked"/>
+                <CheckBox Content="G1 smooth" HorizontalAlignment="Left" Margin="587,126,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.382,-1.688" Unchecked="CheckBox_Unchecked" Checked="CheckBox_Checked"/>
             </Grid>
         </TabItem>
         <TabItem Header="Text editor" Margin="161,0,-335,-1"
