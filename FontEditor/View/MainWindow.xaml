@@ -80,7 +80,7 @@
                         <Label Name="LoadedFontLabel" HorizontalAlignment="Left" VerticalAlignment="Center" Content="No font loaded" Width="96" Margin="0,3,0,29" Height="24"/>
                         <Button Content="Load font" Click="LoadFontButtonClick" Height="24" VerticalAlignment="Bottom" Margin="10,0,13,3" />
                         <StackPanel Grid.ColumnSpan="2" Margin="84,3,0,-3">
-                            <Button Content="Save" Click="SaveFontButtonClicked" Height="24" VerticalAlignment="Top" Margin="10,-5,5,31" IsEnabled="False"/>
+                            <Button Name="SaveButton" Content="Save" Click="SaveFontButtonClicked" Height="24" VerticalAlignment="Top" Margin="10,-5,5,31" IsEnabled="False"/>
                             <Button Content="Save font as..." HorizontalAlignment="Left" VerticalAlignment="Top" Width="83" Height="24" Click="CreateFontButton_Click" Margin="5,-25,0,0"/>
                         </StackPanel>
                     </Grid>

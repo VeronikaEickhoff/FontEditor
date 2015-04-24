@@ -147,44 +147,46 @@ namespace FontEditor.View
 
         private void CreateFontButton_Click(object sender, RoutedEventArgs e)
         {
-            CreateFont();
-            Clear();
+            CreateFontFile();
         }
 
-        private bool CreateFont()
-        {
-            var dlg = new Microsoft.Win32.SaveFileDialog
-            {
-                FileName = "new_font",
-                DefaultExt = ".fnt",
-                Filter = "Fonts (*.fnt)|*.fnt"
-            };
+		private bool CreateFontFile()
+		{
+			var dlg = new Microsoft.Win32.SaveFileDialog
+			{
+				FileName = "new_font",
+				DefaultExt = ".fnt",
+				Filter = "Fonts (*.fnt)|*.fnt"
+			};
 
-            // Show save font dialog box
-            var result = dlg.ShowDialog();
+			// Show save font dialog box
+			var result = dlg.ShowDialog();
 
-            if (result != true) 
+			if (result != true)
 				return false;
 
-            // Save font
-            var filename = dlg.FileName;
-            if (File.Exists(filename))
-                File.Delete(filename);
-            var fs = File.Create(filename);
-            fs.Close();
+			// Save font
+			var filename = dlg.FileName;
+			if (File.Exists(filename))
+				File.Delete(filename);
+			var fs = File.Create(filename);
+			fs.Close();
+			SaveButton.IsEnabled = true;
 
-            m_font = new Font(dlg.FileName);
-
-            isTmpFont = false;
-            LoadedFontLabel.Content = Path.GetFileNameWithoutExtension(dlg.FileName);
+			if (null == m_font)
+				m_font = new Font(filename);
+			else
+				m_font.SaveFont(filename);
+			isTmpFont = false;
+			LoadedFontLabel.Content = Path.GetFileNameWithoutExtension(dlg.FileName);
+			
 			return true;
-
-        }
+		}
 
         private void LoadFontButtonClick(object sender, RoutedEventArgs e)
         {
+			Clear();
             LoadFont();
-            Clear();
         }
 
         private void LoadFont()
@@ -204,6 +206,7 @@ namespace FontEditor.View
 
             isTmpFont = false;
             LoadedFontLabel.Content = Path.GetFileNameWithoutExtension(dlg.FileName);
+			m_segmentController.showLetter(m_font.getLetter(LetterTextBox.Text[0]), true);
         }
 
         private void Undo_Click(object sender, RoutedEventArgs e)
@@ -224,11 +227,8 @@ namespace FontEditor.View
 			{
 				var letter = new Letter(Char.ToUpper(LetterTextBox.Text[0]), letterPath, m_segmentController.getCurveList());
 
-				if (isTmpFont)
-				{
-					if (!CreateFont())
-						return;
-				}
+				if (m_font == null)
+					m_font = new Font();
                 
 				m_font.AddLetterToFont(letter);
 			}
@@ -242,7 +242,6 @@ namespace FontEditor.View
 
         private void Clear()
         {
-            LetterTextBox.Text = "";
             m_segmentController.clear();
             Undo.IsEnabled = false;
         }
@@ -254,7 +253,9 @@ namespace FontEditor.View
 			{
 				if (m_font != null)
 				{
-					m_segmentController.showLetter(m_font.getLetter(LetterTextBox.Text[0]));
+					bool result = m_segmentController.showLetter(m_font.getLetter(LetterTextBox.Text[0]));
+					if (result)
+						Undo.IsEnabled = false;
 				}
 			    SaveLetterButton.IsEnabled = true;
 			}
@@ -274,7 +275,8 @@ namespace FontEditor.View
 
 		private void SaveFontButtonClicked(object sender, RoutedEventArgs e)
 		{
-
+			if (m_font != null)
+				m_font.SaveFont();
 		}
 
        

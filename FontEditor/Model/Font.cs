@@ -16,6 +16,12 @@ namespace FontEditor.Model
         private string m_fontFileName;
         private Dictionary<Char, Letter> m_letters;
 
+		public Font()
+		{
+			m_letters = new Dictionary<Char, Letter>();
+			m_fontFileName = null;
+		}
+
         public Font(string fontFileName)
         {
             m_fontFileName = fontFileName;
@@ -67,18 +73,12 @@ namespace FontEditor.Model
 
 			m_letters.Add(letter.Name, letter);
 
-			var serializedLetter = letter.Serialize();
-
 			// it's shit to save letter each time in file; by the way, appending is also bad for we would like to 
 			// be able to change letter after we have saved it once
 			// we'd better just have stored letters in m_letters structure, and save them to file only when user explicitly 
 			// pushes specified button (save font or smth like that), or ask about if he wants to save the font if he is about
 			// to lose his results while creating new font or closing an app
 			// TODO Veronika, rewrite following three lines, they are incorrect now
-			using (var sw = File.AppendText(m_fontFileName))
-			{
-				sw.WriteLine(serializedLetter);
-			}
 		}
 
         public Path FindLetter(char c)
@@ -101,17 +101,26 @@ namespace FontEditor.Model
 			return m_letters[Char.ToUpper(l)];
 		}
 
+		public void SaveFont()
+		{
+			if (m_fontFileName != null)
+			{
+				using (var sw = File.CreateText(m_fontFileName))
+				{
+					foreach (var pair in m_letters)
+					{
+						var serializedLetter = pair.Value.Serialize();
+
+						sw.WriteLine(serializedLetter);
+					}
+				}
+			}
+		}
+
         public void SaveFont(string filename)
         {
-            using (var sw = File.CreateText(filename))
-            {
-                foreach (var pair in m_letters)
-                {
-                    var serializedLetter = pair.Value.Serialize();
-
-                    sw.WriteLine(serializedLetter);
-                }
-            }
+			m_fontFileName = filename;
+			SaveFont();
         }
 
 		public IEnumerable<Path> LettersPaths

@@ -128,6 +128,7 @@ namespace FontEditor.Controller
                     break;
                 case ControllerState.MOVE: // this is processed by onCurveMouseDown()
                     {
+						m_firstPrevoiusAction.Push(m_actions.Count);
 						long milliseconds = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
 						if (milliseconds - prevClickTime < doubleClickTime)
 						{
@@ -190,7 +191,6 @@ namespace FontEditor.Controller
                         }
 						if (closestDist < m_touchRadius && closest != null)
                         {
-							m_firstPrevoiusAction.Push(m_actions.Count);
                             m_touchedCurve = closest;
                             m_touchedPointIdx = closestIdx;
                             if (m_touchedPointIdx == 0 && m_touchedCurve.hasPrev())
@@ -523,15 +523,15 @@ namespace FontEditor.Controller
 			return ret;
 		}
 
-		public void showLetter(Letter letter)
+		public bool showLetter(Letter letter, bool forceRedraw = false)
 		{
 			if (letter == null)
 			{
 				curLetter = (char)0;
-				return;
+				return false;
 			}
-			if (curLetter == letter.Name)
-				return;
+			if (curLetter == letter.Name && !forceRedraw)
+				return false;
 
 			clear();
 			LinkedListNode<int> startIndex = letter.m_startIndexes.First;
@@ -567,11 +567,23 @@ namespace FontEditor.Controller
 			
 			updatePreview(m_previewGrid);
 			curLetter = letter.Name;
+
+			return true;
 		}
 
 		public void makeSmooth(bool smooth)
 		{
 			DrawableCurve.smooth = smooth;
+		}
+
+		public void fontChanged()
+		{
+			
+		}
+
+		public char getCurrentLetter()
+		{ 
+			return curLetter;
 		}
     }
 

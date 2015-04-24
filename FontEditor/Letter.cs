@@ -98,7 +98,7 @@ namespace FontEditor
 					m_curves.AddLast(tmp);
 				}
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 				m_curves = null;
 			}
