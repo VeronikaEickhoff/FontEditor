@@ -36,7 +36,6 @@ namespace FontEditor.Controller
         private Vector m_prevMousePos;
         private bool m_isMousePressed = false;
 
-        private Path m_lastPath;
 		private Stack<SimpleAction> m_actions;
 		private Stack<int> m_firstPrevoiusAction;
 
@@ -44,7 +43,6 @@ namespace FontEditor.Controller
 		private Grid m_previewGrid;
         private Grid m_previewCanvas;
 		private char curLetter = (char)0;
-		private bool m_smooth = false;
 		private long prevClickTime;
 		private const long doubleClickTime = 300; // millis
 
@@ -569,6 +567,11 @@ namespace FontEditor.Controller
 		public void makeSmooth(bool smooth)
 		{
 			DrawableCurve.smooth = smooth;
+			if (smooth)
+			{
+				foreach (DrawableCurve dc in m_curves)
+					dc.smoothifyWithPrev();
+			}
 		}
 
 		public void fontChanged()

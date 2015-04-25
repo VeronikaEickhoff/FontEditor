@@ -295,6 +295,15 @@ namespace FontEditor.View
 			redraw();
         }
 
+		public void smoothifyWithPrev()
+		{
+			if (null != m_prev)
+			{
+				m_prev.m_curve.smoothifyWithNext(m_curve);
+				m_prev.redraw();
+			}
+		}
+
 		private void redraw()
 		{
 			Point[] p = m_curve.getPoints();
