@@ -31,6 +31,15 @@ namespace FontEditor.Model
 			m_points[3] = new Point(d.X, d.Y);
 		}
 
+		public Curve(Vector a, Vector b, Vector c, Vector d)
+		{
+			m_points = new Point[4];
+			m_points[0] = new Point(a.X, a.Y);
+			m_points[1] = new Point(b.X, b.Y);
+			m_points[2] = new Point(c.X, c.Y);
+			m_points[3] = new Point(d.X, d.Y);
+		}
+
 		private Curve(Curve rhs)
 		{
 			m_points = new Point[4];

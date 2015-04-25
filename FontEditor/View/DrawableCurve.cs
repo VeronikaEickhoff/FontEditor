@@ -622,27 +622,24 @@ namespace FontEditor.View
 
 		public void split(float t, out DrawableCurve dc1, out DrawableCurve dc2)
 		{
-			Vector[] v = new Vector[4];
+			Vector[,] v = new Vector[4,4];
 			Point[] p = getPoints();
 
 			for (int i = 0; i < 4; i++)
 			{
-				v[i] = (Vector)p[i];
+				v[0, i] = (Vector)p[i];
 			}
 
-			Vector grad = 3*(v[1] - v[0]) * (1 - t) * (1 - t) + 6*t * (1 - t) * (v[2] - v[1]) + 3*t * t * (v[3] - v[2]);
-			Vector q = Math.Pow((1 - t), 3) * v[0] + 3 * (1 - t) * (1 - t) * t * v[1] + 3 * t * t * (1 - t) * v[2] + t * t * t * v[3];
+			for (int i = 1; i < 4; i++)
+			{
+				for (int j = 0; j < 4 - i; j++)
+				{
+					v[i, j] = v[i - 1, j] * (1 - t) + t * v[i - 1, j + 1];
+				}
+			}
 
-			grad.Normalize();
-			Vector p2 = q - grad * defaultMiddleLineLength;
-			Vector p1 = q + grad * defaultMiddleLineLength;
-
-			DrawableCurve cur = this;
-			while (!cur.m_isStartCurve)
-				cur = cur.m_prev;
-			
-			Curve c1 = new Curve(p[0], p[1], (Point)p2, (Point)q);
-			Curve c2 = new Curve((Point)q, (Point)p1, p[2], p[3]);
+			Curve c1 = new Curve(v[0,0], v[1, 0], v[2, 0], v[3, 0]);
+			Curve c2 = new Curve(v[3,0], v[2, 1], v[1, 2], v[0, 3]);
 			dc1 = new DrawableCurve(c1, m_prev, m_canvas, m_controller, false);
 			dc1.m_figure = m_figure;
 			
@@ -651,14 +648,18 @@ namespace FontEditor.View
 			if (m_next != null)
 				m_next.m_prev = dc2;
 
-			if (cur == this)
-				cur = dc1;
+			DrawableCurve start = dc1;
 			if (m_isStartCurve)
 			{
 				dc1.setAsStart();
 			}
-			DrawableCurve start = cur;
+			else
+			{ 
+				while (!start.isStartCurve())
+					start = start.m_prev;
+			}
 
+			DrawableCurve cur = start;
 			m_figure.Segments.Clear();
 			do
 			{
